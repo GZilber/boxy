@@ -1,0 +1,211 @@
+.navBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: var(--surface-elevated);
+  border-top: 1px solid var(--border);
+  padding: 0.75rem 0;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--text-secondary);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-lg);
+  transition: all 0.2s ease;
+  position: relative;
+  flex: 1;
+  max-width: 80px;
+}
+
+.navItem:hover {
+  color: var(--primary-600);
+  background-color: var(--primary-50);
+}
+
+.navItem.active {
+  color: var(--primary-600);
+  font-weight: 600;
+}
+
+.navItem.active .navIcon {
+  transform: translateY(-2px);
+}
+
+.navIcon {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.plusIcon {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.navText {
+  font-size: 0.7rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.primaryAction {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-400));
+  color: white !important;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  transform: translateY(-15px);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  max-width: 100px;
+  flex: 0 0 auto;
+  margin: 0 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.primaryAction::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.primaryAction:hover {
+  transform: translateY(-18px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.primaryAction:hover::before {
+  opacity: 1;
+}
+
+.primaryAction .navText,
+.primaryAction .plusIcon {
+  position: relative;
+  z-index: 1;
+  color: white !important;
+}
+
+.logoutButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--text-secondary);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-lg);
+  transition: all 0.2s ease;
+}
+
+.logoutButton:hover {
+  color: var(--error-600);
+  background-color: var(--error-50);
+}
+
+/* Active state indicator */
+.navItem.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: var(--primary-500);
+  border-radius: 50%;
+}
+
+/* Hide text on small screens */
+@media (max-width: 360px) {
+  .navText {
+    font-size: 0.65rem;
+  }
+  
+  .navItem {
+    padding: 0.5rem 0.5rem;
+  }
+}
+
+/* Adjust for larger screens */
+@media (min-width: 768px) {
+  .navBar {
+    left: auto;
+    right: 0;
+    top: 0;
+    bottom: auto;
+    width: 80px;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 1rem 0;
+    border-right: 1px solid var(--border);
+    border-top: none;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .navItem {
+    margin: 0.5rem 0;
+    padding: 0.75rem 0;
+    width: 100%;
+    max-width: none;
+  }
+  
+  .primaryAction {
+    margin: 1rem 0;
+    padding: 0.75rem 0;
+    transform: none;
+    max-width: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .primaryAction .navText {
+    display: none;
+  }
+  
+  .primaryAction .plusIcon {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  
+  .primaryAction:hover {
+    transform: scale(1.05);
+  }
+  
+  .navText {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+  }
+  
+  .navItem.active::after {
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 24px;
+    border-radius: 0 4px 4px 0;
+  }
+}

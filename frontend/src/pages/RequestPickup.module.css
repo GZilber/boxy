@@ -1,0 +1,31 @@
+.fullWidth {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.inputGroup {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.inputIcon {
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.inputField {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.inputField:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 1px #4f46e5;
+}

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoxY - QR Scanner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0066ff 0%, #004dcf 100%);
+            padding: 20px;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .scanner-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .scanner-header {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .scanner-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+
+        #scanner {
+            border-radius: 8px;
+            margin: 20px 0;
+            max-width: 100%;
+            max-height: 400px;
+            background: #ffffff;
+        }
+
+        .scanner-status {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 10px;
+        }
+
+        .scanner-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #ffffff;
+            color: #0066ff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 20px;
+        }
+
+        .scanner-button:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .scanner-button:active {
+            transform: translateY(0);
+        }
+
+        .scanner-error {
+            color: #ff3b30;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .scanner-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .scanner-loading span {
+            width: 8px;
+            height: 8px;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .scanner-loading span:nth-child(2) { animation-delay: 0.2s; }
+        .scanner-loading span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="scanner-container">
+            <div class="scanner-header">Scan Box QR Code</div>
+            <div class="scanner-subtitle">Point your camera at the QR code to scan your box</div>
+            
+            <div id="scanner"></div>
+            
+            <div class="scanner-status" id="scanner-status">Initializing scanner...</div>
+            
+            <button class="scanner-button" id="toggle-camera">Start Camera</button>
+            
+            <div class="scanner-loading" id="loading-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <div class="scanner-error" id="scanner-error"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@zxing/library@latest/dist/index.min.js"></script>
+    <script>
+        const scanner = new ZXing.BrowserMultiFormatReader();
+        const scannerElement = document.getElementById('scanner');
+        const statusElement = document.getElementById('scanner-status');
+        const errorElement = document.getElementById('scanner-error');
+        const loadingElement = document.getElementById('loading-indicator');
+        const toggleButton = document.getElementById('toggle-camera');
+        let isScanning = false;
+
+        toggleButton.addEventListener('click', async () => {
+            try {
+                if (!isScanning) {
+                    await startScanner();
+                } else {
+                    await stopScanner();
+                }
+            } catch (error) {
+                showError(error.message);
+            }
+        });
+
+        async function startScanner() {
+            toggleButton.textContent = 'Stop Camera';
+            loadingElement.style.display = 'flex';
+            statusElement.textContent = 'Starting camera...';
+
+            try {
+                await scanner.decodeFromConstraints({
+                    facingMode: 'environment'
+                }, (result, error) => {
+                    if (result) {
+                        stopScanner();
+                        window.location.href = `/box/${result.text}`;
+                    } else if (error) {
+                        if (error.name === 'NotFoundError') {
+                            showError('No QR code found. Please try again.');
+                        } else {
+                            throw error;
+                        }
+                    }
+                });
+
+                isScanning = true;
+                statusElement.textContent = 'Scanning...';
+                loadingElement.style.display = 'none';
+            } catch (error) {
+                stopScanner();
+                throw error;
+            }
+        }
+
+        async function stopScanner() {
+            toggleButton.textContent = 'Start Camera';
+            loadingElement.style.display = 'none';
+            statusElement.textContent = 'Scanner stopped';
+            isScanning = false;
+            await scanner.reset();
+        }
+
+        function showError(message) {
+            errorElement.textContent = message;
+            setTimeout(() => {
+                errorElement.textContent = '';
+            }, 3000);
+        }
+
+        // Initialize camera permissions
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(() => {
+                statusElement.textContent = 'Camera access granted';
+            })
+            .catch(() => {
+                statusElement.textContent = 'Please grant camera access';
+            });
+    </script>
+</body>
+</html>

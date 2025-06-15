@@ -1,0 +1,262 @@
+/* Register Box Page Styles */
+.register-box-screen {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 2rem 1rem;
+}
+
+.register-box-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.register-box-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.register-box-header h1 {
+  font-size: 1.75rem;
+  color: #1a1a1a;
+  margin: 1rem 0 0.5rem;
+  font-weight: 700;
+}
+
+.register-box-header .subtitle {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.register-box-form {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+  background-color: #fff;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #0066ff;
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+}
+
+textarea.form-input {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.helper-text {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  font-style: italic;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+/* Buttons */
+.btn {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background-color: #0066ff;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #0052cc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn-primary:disabled {
+  background-color: #99c2ff;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.btn-outline {
+  background: white;
+  color: #0066ff;
+  border: 1px solid #0066ff;
+}
+
+.btn-outline:hover {
+  background: rgba(0, 102, 255, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.btn-outline:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Scanning Screen */
+.scanning-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #1a1a1a;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  z-index: 1000;
+}
+
+.scan-container {
+  max-width: 400px;
+  width: 100%;
+}
+
+.scan-container h2 {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.scan-container p {
+  color: #ccc;
+  margin-bottom: 2rem;
+}
+
+.qr-scanner-placeholder {
+  background-color: #2d2d2d;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #444;
+}
+
+.qr-placeholder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.qr-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px solid #0066ff;
+  border-radius: 8px;
+  animation: pulse 2s infinite;
+}
+
+.qr-camera-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+.scan-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.98); opacity: 0.8; }
+  50% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(0.98); opacity: 0.8; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .register-box-form {
+    padding: 1.5rem;
+  }
+  
+  .register-box-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .form-actions,
+  .scan-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+  
+  .scan-container {
+    padding: 0 1rem;
+  }
+}
