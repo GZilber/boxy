@@ -14,7 +14,7 @@ const ProfileScreen: React.FC = () => {
   const navigate = useNavigate();
   const { success, error: showError } = useToast();
   
-  // Mock user data - in a real app, this would come from your auth context or API
+  // Mock user data - in a real db, this would come from your auth context or API
   const [user] = useState({
     name: 'John Doe',
     email: 'john.doe@example.com',

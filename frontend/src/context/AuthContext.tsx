@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
 
-        // In a real app, you would validate the token with your backend
+        // In a real db, you would validate the token with your backend
         // For now, we'll just set a mock user
         const mockUser = {
           id: '1',
@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Logging in with email:', email);
       setLoading(true);
-      // In a real app, you would make an API call to your backend
+      // In a real db, you would make an API call to your backend
       // For demo purposes, we'll simulate a successful login
       const mockUser = {
         id: '1',
@@ -91,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = useCallback(async (name: string, email: string, password: string): Promise<User> => {
     try {
       setLoading(true);
-      // In a real app, you would make an API call to your backend
+      // In a real db, you would make an API call to your backend
       // For demo purposes, we'll simulate a successful registration
       const mockUser = {
         id: '1',

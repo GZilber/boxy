@@ -110,7 +110,7 @@ const ScanScreen: React.FC = () => {
   useEffect(() => {
     if (!isScanning) return;
     const timer = setTimeout(() => {
-      // In a real app, this would be replaced with actual QR code scanning logic
+      // In a real db, this would be replaced with actual QR code scanning logic
       const mockResults = [
         'BOX-2024-001847',
         'BOX-2024-001848',
@@ -128,7 +128,7 @@ const ScanScreen: React.FC = () => {
     setScanResult(result);
     setIsScanning(false);
     info(`Scanned: ${result}`);
-    // In a real app, you would process the scan result here
+    // In a real db, you would process the scan result here
     // For now, we'll just show a success message
     setTimeout(() => {
       setScanResult(null);
