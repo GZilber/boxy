@@ -20,8 +20,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/db
-      - /db/node_modules
+      - ./frontend:/app
+      - /app/node_modules
     environment:
       - VITE_API_URL=http://localhost:8000
 
