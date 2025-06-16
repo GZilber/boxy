@@ -41,7 +41,7 @@ const RegisterBox: React.FC = () => {
   const handleScanComplete = (qrData: string) => {
     console.log('Scanned QR code:', qrData);
     success('Box registered successfully!');
-    // In a real db, you would save the box with the QR code
+    // In a real app, you would save the box with the QR code
     setTimeout(() => {
       navigate('/my-boxes');
     }, 1500);
