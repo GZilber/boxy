@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import styles from './Booking.module.css';
-import { Box } from './types';
+import type { Box } from './types';
 
 interface BoxSelectionProps {
   boxes: Box[];
   onSelectBox: (box: Box) => void;
   onBack: () => void;
   onContinue: () => void;
+  loading?: boolean;
 }
 
 const BoxSelection: React.FC<BoxSelectionProps> = ({ 
   boxes, 
   onSelectBox, 
   onBack,
-  onContinue 
+  onContinue,
+  loading = false
 }) => {
   const [selectedBoxId, setSelectedBoxId] = useState<string | null>(null);
   const [selectedBox, setSelectedBox] = useState<Box | null>(null);
@@ -36,6 +38,40 @@ const BoxSelection: React.FC<BoxSelectionProps> = ({
       onContinue();
     }
   };
+
+  if (loading) {
+    return (
+      <div className={styles.stepContainer}>
+        <div className={styles.header}>
+          <button onClick={onBack} className={styles.backButton}>
+            <FaArrowLeft />
+          </button>
+          <h2>Select Box</h2>
+        </div>
+        <div className={styles.loadingState}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Loading your boxes...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (boxes.length === 0) {
+    return (
+      <div className={styles.stepContainer}>
+        <div className={styles.header}>
+          <button onClick={onBack} className={styles.backButton}>
+            <FaArrowLeft />
+          </button>
+          <h2>No Boxes Available</h2>
+        </div>
+        <div className={styles.emptyState}>
+          <p>You don't have any boxes available for pickup.</p>
+          <p>Please register a box first.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.bookingContainer}>

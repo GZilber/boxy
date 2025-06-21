@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPackage, FiTruck, FiHome, FiArrowRight, FiLogOut } from 'react-icons/fi';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@contexts/AuthContext';
 import BoxYLogo from '../components/BoxYLogo';
 import styles from './Home.module.css';
 

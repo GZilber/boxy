@@ -1,14 +1,15 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { BoxesProvider } from './context/BoxesContext';
-import { ThemeProvider } from './context/ThemeContext';
-import BottomNavigation from './components/BottomNavigation';
+import { AuthProvider, useAuth } from '@contexts/AuthContext';
+import { BoxesProvider } from '@contexts/BoxesContext';
+import { ThemeProvider } from '@contexts/ThemeContext';
+import { ToastProvider } from '@contexts/ToastContext';
 import Layout from './components/layout/Layout';
+import BottomNavigation from './components/BottomNavigation';
 import Splash from './pages/Splash';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -18,10 +19,9 @@ import MyBoxes from './pages/MyBoxes';
 import BoxDetails from './pages/BoxDetails';
 import RegisterBox from './pages/RegisterBox';
 import RequestPickup from './pages/RequestPickup';
-import Scan from './pages/Scan';
-import ScanScreen from './pages/ScanScreen';
+import HandoffBox from './pages/HandoffBox';
+// Scan functionality has been removed and replaced with photo upload
 import ProfileScreen from './pages/ProfileScreen';
-import StorageLocations from './pages/StorageLocations';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -96,6 +96,7 @@ const AppContent = () => {
   // Protected Route Component
   const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { isAuthenticated, loading } = useAuth();
+    const location = useLocation();
 
     console.log('ProtectedRoute - auth state:', { isAuthenticated, loading });
 
@@ -110,7 +111,7 @@ const AppContent = () => {
 
     if (!isAuthenticated) {
       console.log('User not authenticated, redirecting to login');
-      return <Navigate to="/login" replace state={{ from: window.location.pathname }} />;
+      return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
     return <>{children}</>;
@@ -119,6 +120,7 @@ const AppContent = () => {
   // Public Route Component
   const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { isAuthenticated, loading } = useAuth();
+    const location = useLocation();
 
     console.log('PublicRoute - auth state:', { isAuthenticated, loading });
 
@@ -130,97 +132,107 @@ const AppContent = () => {
       );
     }
 
+
     if (isAuthenticated) {
-      console.log('User is authenticated, redirecting to dashboard');
-      return <Navigate to="/dashboard" replace />;
+      // Get the redirect location from state or default to dashboard
+      const from = location.state?.from?.pathname || '/dashboard';
+      console.log('User is authenticated, redirecting to:', from);
+      return <Navigate to={from} replace />;
     }
 
     return <>{children}</>;
   };
   return (
-    <div className="app-container" style={{ paddingBottom: '80px' }}>
-      <main className="main-content">
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={
-            <PublicRoute>
-              <Home />
-            </PublicRoute>
-          } />
-          <Route path="/login" element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          } />
-          <Route path="/signup" element={
-            <PublicRoute>
-              <Signup />
-            </PublicRoute>
-          } />
-          {/* Keep old /register route as a redirect for backward compatibility */}
-          <Route path="/register" element={
-            <PublicRoute>
-              <Navigate to="/signup" replace />
-            </PublicRoute>
-          } />
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={
+        <PublicRoute>
+          <Layout>
+            <Home />
+          </Layout>
+        </PublicRoute>
+      } />
+      <Route path="/login" element={
+        <PublicRoute>
+          <Layout>
+            <Login />
+          </Layout>
+        </PublicRoute>
+      } />
+      <Route path="/signup" element={
+        <PublicRoute>
+          <Layout>
+            <Signup />
+          </Layout>
+        </PublicRoute>
+      } />
+      {/* Keep old /register route as a redirect for backward compatibility */}
+      <Route path="/register" element={
+        <PublicRoute>
+          <Navigate to="/signup" replace />
+        </PublicRoute>
+      } />
 
-          {/* Protected Routes */}
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/my-boxes" element={
-            <ProtectedRoute>
-              <MyBoxes />
-            </ProtectedRoute>
-          } />
-          <Route path="/box/:id" element={
-            <ProtectedRoute>
-              <BoxDetails />
-            </ProtectedRoute>
-          } />
-          <Route path="/register-box" element={
-            <ProtectedRoute>
-              <RegisterBox />
-            </ProtectedRoute>
-          } />
-          <Route path="/request-pickup" element={
-            <ProtectedRoute>
-              <RequestPickup />
-            </ProtectedRoute>
-          } />
-          <Route path="/scan" element={
-            <ProtectedRoute>
-              <Scan />
-            </ProtectedRoute>
-          } />
-          <Route path="/scan-screen" element={
-            <ProtectedRoute>
-              <ScanScreen />
-            </ProtectedRoute>
-          } />
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <ProfileScreen />
-            </ProtectedRoute>
-          } />
-          <Route path="/storage-locations" element={
-            <ProtectedRoute>
-              <StorageLocations />
-            </ProtectedRoute>
-          } />
-          <Route path="/store-box" element={
-            <ProtectedRoute>
-              <RegisterBox />
-            </ProtectedRoute>
-          } />
-        </Routes>
-        <ToastContainer position="top-right" autoClose={5000} />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </main>
-      <BottomNavigation />
-    </div>
+      {/* Protected Routes */}
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <Layout>
+            <Dashboard />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/my-boxes" element={
+        <ProtectedRoute>
+          <Layout>
+            <MyBoxes />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/box/:id" element={
+        <ProtectedRoute>
+          <Layout>
+            <BoxDetails />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/register-box" element={
+        <ProtectedRoute>
+          <Layout>
+            <RegisterBox />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/request-pickup" element={
+        <ProtectedRoute>
+          <Layout>
+            <RequestPickup />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      <Route path="/handoff" element={
+        <ProtectedRoute>
+          <Layout>
+            <HandoffBox />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      {/* Scan routes have been removed in favor of photo upload */}
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <Layout>
+            <ProfileScreen />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/store-box" element={
+        <ProtectedRoute>
+          <Layout>
+            <RegisterBox />
+          </Layout>
+        </ProtectedRoute>
+      } />
+    </Routes>
   );
 };
 
@@ -231,17 +243,21 @@ const App: React.FC = () => {
         <ThemeProvider>
           <AuthProvider>
             <BoxesProvider>
-              <div className="app">
-                <AppContent />
-                <ToastContainer 
-                  position="top-center" 
-                  autoClose={5000}
-                  toastClassName="toast" 
-                  bodyClassName="toast-body"
-                  theme="colored"
-                />
-                <ReactQueryDevtools initialIsOpen={false} />
-              </div>
+              <ToastProvider>
+                <div className="app">
+                  <ErrorBoundary>
+                    <AppContent />
+                  </ErrorBoundary>
+                  <ToastContainer 
+                    position="top-center" 
+                    autoClose={5000}
+                    toastClassName="toast" 
+                    bodyClassName="toast-body"
+                    theme="colored"
+                  />
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </div>
+              </ToastProvider>
             </BoxesProvider>
           </AuthProvider>
         </ThemeProvider>

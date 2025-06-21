@@ -1,48 +1,102 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth, type Address } from '../contexts/AuthContext';
+import { useBoxes } from '../contexts/BoxesContext';
+import type { Box as BookingBox } from './booking/types';
+import type { Box as FullBox } from '../types/box';
+import ServiceFlowStep from './booking/ServiceFlowStep';
 import BoxSelection from './booking/BoxSelection';
 import DetailsStep from './booking/DetailsStep';
 import SummaryStep from './booking/SummaryStep';
 import ConfirmationStep from './booking/ConfirmationStep';
 import TrackingStep from './booking/TrackingStep';
-import { Box, BookingStep, TimeSlot } from './booking/types';
+import type { BookingStep, TimeSlot } from './booking/types';
 import styles from './booking/Booking.module.css';
 import { useToast } from '../components/hooks/useToast';
 
-// Box options
-const BOXES: Box[] = [
-  { id: 'small', name: 'Small Box', size: '30×20×20 cm' },
-  { id: 'medium', name: 'Medium Box', size: '40×30×30 cm' },
-  { id: 'large', name: 'Large Box', size: '50×40×40 cm' },
-  { id: 'xl', name: 'XL Box', size: '60×50×50 cm' },
-];
-
 const TIME_SLOTS: TimeSlot[] = [
-  { id: 'morning', label: '9:00 AM - 12:00 PM' },
-  { id: 'afternoon', label: '1:00 PM - 4:00 PM' },
-  { id: 'evening', label: '5:00 PM - 8:00 PM' },
+  { id: '9:00 AM - 12:00 PM', label: '9:00 AM - 12:00 PM' },
+  { id: '1:00 PM - 4:00 PM', label: '1:00 PM - 4:00 PM' },
+  { id: '5:00 PM - 8:00 PM', label: '5:00 PM - 8:00 PM' },
 ];
 
 const RequestPickup: React.FC = () => {
   const navigate = useNavigate();
   const { success } = useToast();
-  const [currentStep, setCurrentStep] = useState<BookingStep>('box-selection');
-  const [selectedBox, setSelectedBox] = useState<Box | null>(null);
-  const [pickupAddress, setPickupAddress] = useState('123 Main Street, City');
+  const { user } = useAuth();
+  const { boxes, loading: boxesLoading } = useBoxes();
+  
+  // Debug: Log user data
+  useEffect(() => {
+    console.log('RequestPickup - User data:', user);
+    if (user?.addresses) {
+      console.log('RequestPickup - User addresses:', user.addresses);
+    } else {
+      console.log('RequestPickup - No addresses found in user data');
+    }
+  }, [user]);
+  
+  const [currentStep, setCurrentStep] = useState<BookingStep>('service-flow');
+  const [selectedBox, setSelectedBox] = useState<BookingBox | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
+  
+  // Get the selected address object
+  const selectedAddress = useMemo(() => {
+    if (!user?.addresses?.length) return null;
+    return user.addresses.find(addr => addr.id === selectedAddressId) || user.addresses[0];
+  }, [user?.addresses, selectedAddressId]);
+  
+  // Format address for display
+  const formatAddress = (address: Address) => {
+    return `${address.street}, ${address.city}, ${address.state} ${address.zipCode}`;
+  };
   const [isLoading, setIsLoading] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
+  
+  // Get available boxes for pickup (owned by user and in stored status)
+  const availableBoxes = useMemo<BookingBox[]>(() => {
+    if (!user?.id || !boxes.length) return [];
+    
+    return boxes
+      .filter((box: FullBox) => 
+        box.ownerId === user.id && 
+        ['stored', 'processing'].includes(box.status)
+      )
+      .map((box: FullBox): BookingBox => ({
+        ...box,
+        price: 0 // Default price since it's required in the Box type
+      }));
+  }, [boxes, user?.id]);
 
   useEffect(() => {
-    // Set default date to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     setSelectedDate(tomorrow.toISOString().split('T')[0]);
-  }, []);
+    
+    // Set default address if available
+    if (user?.addresses?.length) {
+      console.log('User addresses:', user.addresses);
+      const defaultAddress = user.addresses.find(addr => addr.isDefault) || user.addresses[0];
+      if (defaultAddress) {
+        console.log('Setting default address:', defaultAddress);
+        setSelectedAddressId(defaultAddress.id);
+      } else {
+        console.log('No default address found, using first address');
+        setSelectedAddressId(user.addresses[0]?.id || '');
+      }
+    } else {
+      console.log('No addresses found for user:', user);
+    }
+  }, [user, user?.addresses]);
+  
+  // Debug: Log when selectedAddressId changes
+  useEffect(() => {
+    console.log('Selected address ID changed:', selectedAddressId);
+  }, [selectedAddressId]);
 
-  const handleBoxSelect = (box: Box) => {
+  const handleBoxSelect = (box: BookingBox) => {
     setSelectedBox(box);
   };
 
@@ -84,28 +138,35 @@ const RequestPickup: React.FC = () => {
 
   const renderStep = () => {
     switch (currentStep) {
+      case 'service-flow':
+        return (
+          <ServiceFlowStep 
+            onContinue={() => setCurrentStep('box-selection')}
+            onBack={() => navigate(-1)}
+          />
+        );
       case 'box-selection':
         return (
           <BoxSelection 
-            boxes={BOXES}
+            boxes={availableBoxes}
             onSelectBox={handleBoxSelect}
-            onBack={() => navigate(-1)}
+            onBack={() => setCurrentStep('service-flow')}
             onContinue={handleBoxContinue}
+            loading={boxesLoading}
           />
         );
       case 'details':
         return (
           <DetailsStep
-            pickupAddress={pickupAddress}
+            addresses={user?.addresses || []}
+            selectedAddressId={selectedAddressId}
             selectedDate={selectedDate}
             selectedTime={selectedTime}
-            contactNumber={contactNumber}
             timeSlots={TIME_SLOTS}
             onBack={handleBack}
-            onAddressChange={setPickupAddress}
+            onAddressChange={setSelectedAddressId}
             onDateChange={setSelectedDate}
             onTimeSelect={setSelectedTime}
-            onContactNumberChange={setContactNumber}
             onContinue={() => setCurrentStep('summary')}
           />
         );
@@ -115,7 +176,7 @@ const RequestPickup: React.FC = () => {
             selectedBox={selectedBox}
             selectedDate={selectedDate}
             selectedTime={selectedTime}
-            pickupAddress={pickupAddress}
+            pickupAddress={selectedAddress ? formatAddress(selectedAddress) : ''}
             onBack={handleBack}
             onConfirm={handleConfirmOrder}
             isLoading={isLoading}

@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiPackage, FiTruck, FiCheckCircle, FiPlus, FiCode, FiBox, FiLogOut } from 'react-icons/fi';
-import { useBoxes } from '../context/BoxesContext';
-import { useAuth } from '../context/AuthContext';
+import { FiPackage, FiTruck, FiCheckCircle, FiPlus, FiBox, FiLogOut, FiUserCheck } from 'react-icons/fi';
+import { useBoxes } from '@contexts/BoxesContext';
+import { useAuth } from '@contexts/AuthContext';
 import styles from './Dashboard.module.css';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { boxes, loading, setFilter } = useBoxes();
+  const { boxes, loading } = useBoxes();
   const { logout } = useAuth();
 
   const handleLogout = () => {
@@ -16,10 +16,13 @@ const Dashboard: React.FC = () => {
     navigate('/');
   };
 
-  // Handle status filter click
+  // Handle status click - navigate to MyBoxes with status filter in URL
   const handleStatusClick = (status: string | null) => {
-    setFilter(status ? { status } : {});
-    navigate('/my-boxes');
+    const params = new URLSearchParams();
+    if (status) {
+      params.set('status', status);
+    }
+    navigate(`/my-boxes?${params.toString()}`);
   };
 
   // Calculate stats from boxes data
@@ -48,11 +51,11 @@ const Dashboard: React.FC = () => {
       action: () => navigate('/store-box')
     },
     {
-      title: 'Scan QR Code',
-      description: 'Scan a box QR code',
-      icon: <FiCode size={24} />,
+      title: 'Handoff to Courier',
+      description: 'Transfer box to a courier',
+      icon: <FiUserCheck size={24} />,
       color: 'var(--accent-500)',
-      action: () => navigate('/scan')
+      action: () => navigate('/handoff')
     },
     {
       title: 'Request Pickup',

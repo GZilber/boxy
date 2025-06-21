@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaCheck, FaArrowLeft } from 'react-icons/fa';
-import { Box } from './types';
+import type { Box } from './types';
 import styles from './Booking.module.css';
 
 interface ConfirmationStepProps {

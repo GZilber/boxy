@@ -3,7 +3,7 @@ import { MapPinIcon, BoxWithArrowIcon, StorageIcon, InfoIcon } from '../componen
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BoxSelectionModal from '../components/BoxSelectionModal';
-import { useBoxes } from '../context/BoxesContext';
+import { useBoxes } from '@contexts/BoxesContext';
 import { Box as BoxType } from '../types';
 import styles from './StorageLocations.module.css';
 import { v4 as uuidv4 } from 'uuid';

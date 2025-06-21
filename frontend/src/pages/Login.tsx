@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useToast } from '../components/hooks/useToast';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@contexts/AuthContext';
 import BoxYLogo from '../components/BoxYLogo';
 import { motion } from 'framer-motion';
 import styles from './Login.module.css';

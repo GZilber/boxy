@@ -1,0 +1,910 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.header h1 {
+  margin: 0 auto;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  text-align: center;
+  flex: 1;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.backButton:hover {
+  background-color: var(--bg-hover);
+}
+
+.content {
+  flex: 1;
+  padding: 1rem 0;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.stepContent h2 {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+/* Box List Styles */
+.boxList {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+}
+
+.boxItem {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.boxItem::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 4px;
+  background: var(--primary-500);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.boxItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary-300);
+}
+
+.boxItem.selected {
+  border-color: var(--primary-100);
+  background-color: var(--primary-50);
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+}
+
+.boxItem.selected::before {
+  transform: scaleY(1);
+}
+
+.boxCheckbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.boxCheckbox svg {
+  color: var(--primary-500);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.boxItem.selected .boxCheckbox {
+  border-color: var(--primary-500);
+  background-color: var(--primary-500);
+}
+
+.boxItem.selected .boxCheckbox svg {
+  opacity: 1;
+  color: white;
+}
+
+.boxInfo h3 {
+  margin: 0 0 0.25rem 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.boxInfo p {
+  margin: 0.25rem 0 0 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.actionButtons button {
+  flex: 1;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.continueButton,
+.confirmButton {
+  background-color: var(--primary-500);
+  color: white;
+  border: none;
+}
+
+.continueButton:not(:disabled):hover,
+.confirmButton:not(:disabled):hover {
+  background-color: var(--primary-600);
+}
+
+.continueButton:disabled,
+.confirmButton:disabled {
+  background-color: var(--gray-300);
+  cursor: not-allowed;
+}
+
+.backButton,
+.cancelButton {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.backButton:hover,
+.cancelButton:hover {
+  background-color: var(--bg-hover);
+}
+
+/* Confirmation Step */
+.confirmationDetails {
+  flex: 1;
+  margin-bottom: 1.5rem;
+}
+
+.detailSection {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.detailSection h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.selectedBoxesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.selectedBoxesList li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.selectedBoxesList li:last-child {
+  border-bottom: none;
+}
+
+.handoffCode {
+  font-family: monospace;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-500);
+  text-align: center;
+  letter-spacing: 0.1em;
+  padding: 1rem;
+  background: var(--primary-50);
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.note {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  text-align: center;
+  margin: 0.5rem 0 0 0;
+}
+
+.locationInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+  margin-top: 0.5rem;
+}
+
+/* Pending & Completed States */
+.pendingContainer,
+.completedContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1rem;
+  flex: 1;
+}
+
+.pendingContainer h2,
+.completedContainer h2 {
+  margin: 1.5rem 0 0.5rem 0;
+}
+
+.pendingContainer p,
+.completedContainer p {
+  color: var(--text-secondary);
+  margin: 0 0 2rem 0;
+  max-width: 300px;
+}
+
+.loadingSpinner {
+  animation: spin 1s linear infinite;
+  font-size: 2.5rem;
+  color: var(--primary-500);
+  margin-bottom: 1rem;
+}
+
+.successIcon {
+  font-size: 4rem;
+  color: var(--success-500);
+  margin-bottom: 1rem;
+}
+
+.returnButton {
+  background-color: var(--primary-500);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+.returnButton:hover {
+  background-color: var(--primary-600);
+}
+
+/* Step Indicator */
+.stepIndicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.5rem;
+  gap: 0.5rem;
+}
+
+.stepDot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.stepDot.active {
+  background-color: var(--primary-500);
+  color: white;
+}
+
+.stepDot.completed {
+  background-color: var(--success-500);
+  color: white;
+}
+
+.stepLine {
+  height: 2px;
+  background-color: var(--border-color);
+  flex: 1;
+  max-width: 40px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem;
+  }
+  
+  .header h1 {
+    font-size: 1.25rem;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .actionButtons button {
+    width: 100%;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+
+.locationPrompt {
+  text-align: center;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.locationPrompt p {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-secondary);
+}
+
+.locationButton {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--primary-500);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.locationButton:hover:not(:disabled) {
+  background-color: var(--primary-600);
+}
+
+.locationButton:disabled {
+  background-color: var(--gray-300);
+  cursor: not-allowed;
+}
+
+/* Boxes Section */
+.boxesSection {
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.boxesSection h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+/* Form styles */
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.inputWithIcon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.inputWithIcon input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+}
+
+.inputWithIcon input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 2px var(--primary-100);
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.emptyIcon {
+  color: var(--primary-300);
+  margin-bottom: 1rem;
+}
+
+.emptyState h3 {
+  margin: 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.emptyState p {
+  margin: 0.25rem 0 1.5rem;
+  max-width: 300px;
+}
+
+/* Checkbox Styles */
+.checkbox {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  margin-right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  background: white;
+}
+
+.checkboxChecked {
+  background-color: var(--primary-500);
+  border-color: var(--primary-500);
+  color: white;
+  animation: checkmark 0.3s ease-out;
+}
+
+@keyframes checkmark {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.checkboxUnchecked {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  background-color: transparent;
+  transition: all 0.2s;
+}
+
+.checkboxUnchecked:hover {
+  background-color: var(--primary-50);
+}
+
+/* Box Item Styles */
+.boxItem {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.boxItem:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-color: var(--primary-200);
+}
+
+.boxItem.selected {
+  border-color: var(--primary-500);
+  background-color: var(--primary-50);
+}
+
+.checkboxContainer {
+  display: flex;
+  align-items: flex-start;
+}
+
+.boxInfo {
+  flex: 1;
+}
+
+.boxName {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+/* Handoff Code Styles */
+.handoffCodeContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1.5rem 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.handoffCodeContainer:hover .handoffCode {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.handoffCode {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s;
+  border: 1px solid var(--border-color);
+}
+
+.codeChar {
+  background: var(--primary-50);
+  border: 2px solid var(--primary-200);
+  border-radius: 8px;
+  width: 3rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-700);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  animation: popIn 0.3s ease-out forwards;
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.copyHint {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  opacity: 0.8;
+  transition: all 0.2s;
+}
+
+.handoffCodeContainer:hover .copyHint {
+  color: var(--primary-600);
+  opacity: 1;
+}
+
+@keyframes popIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Box Status and Size */
+.boxStatus, .boxSize {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0.15rem 0;
+}
+
+.boxSize {
+  color: var(--text-tertiary);
+}
+
+/* Pending Confirmation Styles */
+.pendingContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+/* Error State */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  margin: 1rem 0;
+}
+
+.errorIcon {
+  font-size: 3rem;
+  color: var(--error-500);
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-500);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.retryButton:hover {
+  background-color: var(--primary-600);
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  gap: 1rem;
+}
+
+.loadingSpinner {
+  font-size: 2rem;
+  color: var(--primary-500);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Courier Info */
+.courierInfo {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  width: 100%;
+  max-width: 300px;
+  text-align: left;
+}
+
+.courierInfo p {
+  margin: 0.5rem 0;
+  color: var(--text-primary);
+}
+
+/* Button Group */
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 1rem;
+}
+
+.button {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirmButton {
+  background-color: var(--primary-500);
+  color: white;
+}
+
+.confirmButton:not(:disabled):hover {
+  background-color: var(--primary-600);
+}
+
+.cancelButton {
+  background-color: var(--gray-100);
+  color: var(--text-primary);
+}
+
+.cancelButton:hover {
+  background-color: var(--gray-200);
+}
+
+.button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.footer {
+  margin-top: auto;
+  padding: 1.25rem 1rem;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.selectionInfo {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.continueButton {
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--primary-500);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.continueButton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.continueButton:not(:disabled):hover {
+  background-color: var(--primary-600);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+}
+
+.continueButton:not(:disabled):active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+}
+
+.continueButton:not(:disabled):hover::after {
+  transform: translateX(100%);
+}
+
+.continueButton:disabled {
+  background-color: var(--gray-300);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-secondary);
+}
+
+.addBoxButton {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-500);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.addBoxButton:hover {
+  background-color: var(--primary-600);
+}
+
+.boxInfo {
+  background-color: var(--bg-secondary);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.boxInfo h3 {
+  margin: 0 0 0.25rem 0;
+  color: var(--text-primary);
+}
+
+.boxInfo p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}

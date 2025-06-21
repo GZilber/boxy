@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FiArrowLeft, FiUser, FiMail, FiLock, FiPhone, FiMapPin } from 'react-icons/fi';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@contexts/AuthContext';
 import { useToast } from '../components/hooks/useToast';
 import styles from './Auth.module.css';
 

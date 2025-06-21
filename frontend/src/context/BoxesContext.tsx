@@ -50,6 +50,8 @@ export const BoxesProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       weight: 5.5,
       value: 250,
       trackingNumber: 'TRK12345678',
+      ownerId: "1", // Added ownerId
+      availableForPickup: false,
       timeline: [
         {
           status: 'stored',
@@ -75,13 +77,28 @@ export const BoxesProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       value: 150,
       trackingNumber: 'TRK23456789',
       estimatedDelivery: '2025-06-01T12:00:00Z',
+      ownerId: "1", // Added ownerId
+      courierName: 'John Doe',
+      courierPhone: '+1234567890',
+      availableForPickup: true,
+      lastLocation: {
+        lat: 37.7749,
+        lng: -122.4194
+      },
       timeline: [
+        {
+          status: 'stored',
+          time: new Date('2025-02-19').toISOString(),
+          location: 'Warehouse B',
+          locationId: 'warehouse-b',
+          details: 'Box stored in warehouse'
+        },
         {
           status: 'picked_up',
           time: new Date('2025-02-20').toISOString(),
-          location: 'Your Location',
-          locationId: 'customer-location',
-          details: 'Picked up for delivery'
+          location: 'Warehouse B',
+          locationId: 'warehouse-b',
+          details: 'Picked up by courier: John Doe'
         },
         {
           status: 'in_transit',
@@ -106,13 +123,28 @@ export const BoxesProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       weight: 3.1,
       value: 400,
       trackingNumber: 'TRK34567890',
+      ownerId: "1", // Added ownerId
+      courierName: 'Jane Smith',
+      courierPhone: '+1987654321',
+      availableForPickup: false,
+      lastLocation: {
+        lat: 37.7749,
+        lng: -122.4194
+      },
       timeline: [
+        {
+          status: 'stored',
+          time: new Date('2025-02-28').toISOString(),
+          location: 'Warehouse C',
+          locationId: 'warehouse-c',
+          details: 'Box stored in warehouse'
+        },
         {
           status: 'picked_up',
           time: new Date('2025-03-01').toISOString(),
-          location: 'Your Location',
-          locationId: 'customer-location',
-          details: 'Picked up for delivery'
+          location: 'Warehouse C',
+          locationId: 'warehouse-c',
+          details: 'Picked up by courier: Jane Smith'
         },
         {
           status: 'in_transit',
@@ -126,14 +158,40 @@ export const BoxesProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           time: new Date('2025-03-10T09:00:00Z').toISOString(),
           location: 'Local Facility',
           locationId: 'local-facility',
-          details: 'Out for delivery'
+          details: 'Out for delivery with courier: Jane Smith'
         },
         {
           status: 'delivered',
           time: new Date('2025-03-10T14:30:00Z').toISOString(),
           location: '123 Main St',
           locationId: 'delivered-location',
-          details: 'Delivered to customer'
+          details: 'Delivered to customer by Jane Smith'
+        }
+      ]
+    } as Box,
+    {
+      id: '4',
+      name: 'Kitchenware',
+      size: 'medium',
+      status: 'processing',
+      location: 'Processing Center',
+      locationId: 'processing-center',
+      lastUpdated: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      pickupTime: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
+      description: 'Kitchen utensils and small appliances',
+      weight: 6.8,
+      value: 320,
+      trackingNumber: 'TRK45678901',
+      ownerId: "1", // Added ownerId
+      availableForPickup: false,
+      timeline: [
+        {
+          status: 'processing',
+          time: new Date().toISOString(),
+          location: 'Processing Center',
+          locationId: 'processing-center',
+          details: 'Box is being processed for storage'
         }
       ]
     } as Box

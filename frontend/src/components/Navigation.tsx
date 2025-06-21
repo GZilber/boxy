@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@contexts/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { 
   FiHome, 

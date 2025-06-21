@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FiHome, FiPackage, FiPlusCircle, FiUser, FiLogIn, FiLogOut } from 'react-icons/fi';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@contexts/AuthContext';
 import styles from '../styles/NavBar.module.css';
 
 const NavBar: React.FC = () => {

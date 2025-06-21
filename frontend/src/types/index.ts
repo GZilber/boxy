@@ -1,38 +1,32 @@
+// Re-export all types from box.ts
+export * from './box';
+
+// Define other types that don't depend on Box
 export interface User {
   id: string;
   name: string;
   email: string;
 }
 
-// Import and re-export TimelineEvent
-import { TimelineEvent } from './timeline';
-export type { TimelineEvent };
-
-// Base interface without index signature to avoid conflicts
-interface BoxBase {
-  id: string;
-  name: string;
-  size: 'small' | 'medium' | 'large' | 'xl';
-  status: 'stored' | 'transit' | 'delivered' | 'processing' | 'in_transit';
-  location: string;
-  locationId: string;
-  lastUpdated: string;
-  createdAt: string;
-  description: string;
-  weight: number;
-  value: number;
-  trackingNumber: string;
-  estimatedDelivery?: string;
-  notes?: string;
-  pickupTime?: string;
-  timeline: TimelineEvent[];
+export interface PickupRequest {
+  boxSize: string;
+  pickupAddress: string;
+  deliveryAddress: string;
 }
 
-// Extended interface with index signature
-export interface Box extends BoxBase {
-  [key: string]: any;
-}
+// Import Box and BoxStatus types for use in this file
+type Box = import('./box').Box;
+type BoxStatus = import('./box').BoxStatus;
 
+// Define BoxInput type based on Box
 export type BoxInput = Omit<Box, 'id' | 'createdAt' | 'lastUpdated' | 'timeline'> & {
   pickupTime: string;
+  status?: BoxStatus;
+  location?: string;
+  locationId?: string;
+  ownerId?: string;
+  description?: string;
+  value?: number;
+  weight?: number;
+  trackingNumber?: string;
 };

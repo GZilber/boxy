@@ -1,0 +1,706 @@
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@contexts/AuthContext';
+import { useBoxes } from '@contexts/BoxesContext';
+import { useToast } from '@contexts/ToastContext';
+import type { Box, BoxStatus, TimelineEvent, UpdateBoxInput } from '../types/box';
+import { 
+  FiArrowLeft, 
+  FiCheck, 
+  FiMapPin,
+  FiLoader,
+  FiAlertCircle,
+  FiPackage,
+  FiInfo,
+  FiCopy
+} from 'react-icons/fi';
+import styles from './HandoffBox.module.css';
+
+// Define local types
+type HandoffStep = 'select' | 'confirm' | 'pending' | 'completed';
+
+interface LocationCoordinates {
+  lat: number;
+  lng: number;
+  address?: string;
+}
+
+interface HandoffBoxProps {
+  // Add any props if needed
+}
+
+const HandoffBox: React.FC<HandoffBoxProps> = () => {
+  console.log('HandoffBox component rendering...');
+  
+  // Hooks
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  console.log('Auth state in HandoffBox:', { isAuthenticated, userId: user?.id });
+  
+  const { boxes, loading, error, fetchBoxes, updateBox } = useBoxes();
+  console.log('Boxes context state:', { boxesCount: boxes?.length, loading, error });
+  
+  const { showSuccess, showError } = useToast();
+  
+  // Fetch boxes on component mount and when authentication state changes
+  useEffect(() => {
+    const loadBoxes = async () => {
+      if (!isAuthenticated) {
+        console.log('User not authenticated, skipping boxes fetch');
+        return;
+      }
+      
+      console.log('Loading boxes...');
+      try {
+        await fetchBoxes();
+        console.log('Boxes loaded successfully');
+      } catch (error) {
+        console.error('Failed to load boxes:', error);
+        showError?.('Failed to load boxes. Please try again.');
+      }
+    };
+    
+    loadBoxes();
+  }, [fetchBoxes, showError, isAuthenticated]);
+  
+  // Log authentication state changes
+  useEffect(() => {
+    console.log('Auth state changed - isAuthenticated:', isAuthenticated, 'User ID:', user?.id);
+  }, [isAuthenticated, user?.id]);
+  
+  // Log boxes state changes
+  useEffect(() => {
+    console.log('Boxes state updated:', { count: boxes.length, boxes });
+  }, [boxes]);
+  
+  // State
+  const [selectedBoxIds, setSelectedBoxIds] = useState<string[]>([]);
+  const [location, setLocation] = useState<LocationCoordinates | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingLocation, setIsLoadingLocation] = useState<boolean>(false);
+  const [isConfirming, setIsConfirming] = useState<boolean>(false);
+  const [isPendingCourier, setIsPendingCourier] = useState<boolean>(false);
+  const [handoffCode, setHandoffCode] = useState<string>('');
+  const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [step, setStep] = useState<HandoffStep>('select');
+  
+  // Default pickup time (1 hour from now)
+  const defaultPickupTime = useMemo(() => {
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    return now;
+  }, []);
+  
+  // Format pickup time for display
+  const formattedPickupTime = useMemo(() => {
+    return defaultPickupTime.toLocaleString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }, [defaultPickupTime]);
+  
+  // Use user's phone number if available, or show a default
+  const contactNumber = useMemo(() => {
+    return user?.phone || '+1 (555) 123-4567'; // Fallback to default if no phone
+  }, [user?.phone]);
+  
+  // Memoized derived state - filter boxes that are available for handoff
+  const availableBoxes = useMemo<Box[]>(() => {
+    console.log('=== FILTERING BOXES ===');
+    console.log('Current user ID:', user?.id);
+    console.log('Total boxes in context:', boxes.length);
+    console.log('Boxes data:', boxes);
+    
+    if (!user?.id) {
+      console.log('No user ID, returning empty array');
+      return [];
+    }
+    
+    if (!boxes.length) {
+      console.log('No boxes in context, returning empty array');
+      return [];
+    }
+    
+    const filtered = boxes.filter((box: Box) => {
+      // Only show boxes that are owned by the current user
+      const isOwned = box.ownerId === user.id;
+      // Only show boxes that are in a state that can be handed off
+      const isHandoffable = box.status === 'stored' || box.status === 'processing';
+      
+      if (isOwned && isHandoffable) {
+        console.log(`✅ Box available for handoff:`, {
+          id: box.id,
+          name: box.name,
+          status: box.status,
+          location: box.location,
+          ownerId: box.ownerId,
+          currentUser: user.id,
+          timeline: box.timeline?.length,
+          isOwned,
+          isHandoffable
+        });
+      } else {
+        console.log(`❌ Box not available for handoff:`, {
+          id: box.id,
+          name: box.name,
+          status: box.status,
+          ownerId: box.ownerId,
+          currentUser: user.id,
+          isOwned,
+          isHandoffable
+        });
+      }
+      
+      return isOwned && isHandoffable;
+    });
+    
+    console.log('=== FILTERED BOXES ===');
+    console.log(`Found ${filtered.length} available boxes:`, filtered);
+    console.log('========================');
+    
+    return filtered;
+  }, [boxes, user?.id]);
+  
+  // Log when boxes or authentication state changes
+  useEffect(() => {
+    console.log('Boxes context state:', { 
+      loading, 
+      error, 
+      boxesCount: boxes.length,
+      userBoxesCount: availableBoxes.length,
+      isAuthenticated: !!user?.id,
+      userId: user?.id
+    });
+  }, [boxes, availableBoxes, loading, error, user?.id]);
+  
+  const selectedBoxes = useMemo<Box[]>(() => {
+    return availableBoxes.filter((box: Box) => selectedBoxIds.includes(box.id));
+  }, [availableBoxes, selectedBoxIds]);
+  
+  const hasSelectedBoxes = useMemo<boolean>(() => {
+    return selectedBoxIds.length > 0;
+  }, [selectedBoxIds]);
+  
+  // Generate handoff code on mount
+  useEffect(() => {
+    // Generate a 6-character alphanumeric code
+    const code = Array.from({ length: 6 }, () => 
+      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[
+        Math.floor(Math.random() * 36)
+      ]
+    ).join('');
+    
+    console.log('Generated handoff code:', code);
+    setHandoffCode(code);
+  }, []);
+  
+  // Get current location with improved error handling
+  const getCurrentLocation = useCallback((): Promise<LocationCoordinates> => {
+    console.log('Attempting to get current location...');
+    
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        const error = new Error('Geolocation is not supported by your browser');
+        console.error('Geolocation not supported');
+        reject(error);
+        return;
+      }
+      
+      console.log('Requesting geolocation permissions...');
+      
+      // Request high accuracy with a reasonable timeout
+      const options = {
+        enableHighAccuracy: true,  // Use GPS if available
+        timeout: 15000,           // 15 seconds timeout
+        maximumAge: 0             // Force a fresh location
+      };
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log('Location retrieved successfully:', position.coords);
+          const coords = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            address: `Location (${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)})`
+          };
+          console.log('Resolved coordinates:', coords);
+          resolve(coords);
+        },
+        (error) => {
+          let errorMessage = 'Failed to get location';
+          let errorDetails = '';
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location permission denied';
+              errorDetails = 'Please enable location access in your browser settings and try again.';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information is unavailable';
+              errorDetails = 'Your location could not be determined. Please check your connection and try again.';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out';
+              errorDetails = 'The request to get your location took too long. Please try again.';
+              break;
+            default:
+              errorDetails = error.message || 'An unknown error occurred';
+          }
+          
+          console.error('Geolocation error:', { 
+            code: error.code, 
+            message: error.message,
+            details: errorDetails 
+          });
+          
+          const locationError = new Error(`${errorMessage}. ${errorDetails}`);
+          locationError.name = 'GeolocationError';
+          reject(locationError);
+        },
+        options
+      );
+    });
+  }, []);
+  
+  // Set a default location without requiring geolocation
+  useEffect(() => {
+    setLocation({
+      lat: 0,
+      lng: 0,
+      address: 'Pickup location will be determined'
+    });
+  }, []);
+  
+  // Check if geolocation is supported
+  const isGeolocationSupported = useMemo(() => {
+    return 'geolocation' in navigator;
+  }, []);
+  
+  // Toggle box selection
+  const toggleBoxSelection = useCallback((box: Box): void => {
+    setSelectedBoxIds(prev => 
+      prev.includes(box.id) 
+        ? prev.filter(id => id !== box.id)
+        : [...prev, box.id]
+    );
+  }, []);
+  
+  // Handle continue to confirmation
+  const handleContinue = useCallback((): void => {
+    if (selectedBoxIds.length === 0) {
+      showError?.('Please select at least one box to continue');
+      return;
+    }
+    setIsConfirming(true);
+  }, [selectedBoxIds, showError]);
+  
+  // Handle location button click with improved feedback
+  const handleGetLocation = useCallback(async (): Promise<void> => {
+    if (!isGeolocationSupported) {
+      const errorMessage = 'Geolocation is not supported by your browser';
+      console.error(errorMessage);
+      setLocationError(errorMessage);
+      showError?.(errorMessage);
+      return;
+    }
+    
+    console.log('Initiating location request...');
+    setIsLoadingLocation(true);
+    setLocationError(null);
+    
+    try {
+      console.log('Requesting location...');
+      const currentLocation = await getCurrentLocation();
+      console.log('Location received:', currentLocation);
+      
+      // Update location state
+      setLocation(currentLocation);
+      
+      // Show success message
+      showSuccess?.('Location retrieved successfully!');
+      
+    } catch (error) {
+      console.error('Error in handleGetLocation:', error);
+      
+      // Handle different types of errors
+      let errorMessage = 'Failed to get location';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        
+        // Check for permission denied error
+        if (error.name === 'GeolocationError' || errorMessage.includes('permission')) {
+          // Provide more helpful guidance for permission issues
+          errorMessage += ' Please check your browser settings to enable location access.';
+        }
+      }
+      
+      setLocationError(errorMessage);
+      showError?.(errorMessage);
+      
+    } finally {
+      console.log('Location request completed');
+      setIsLoadingLocation(false);
+    }
+  }, [getCurrentLocation, isGeolocationSupported, showError, showSuccess]);
+  
+  // Handle initiate handoff
+  const handleInitiateHandoff = useCallback(async (): Promise<void> => {
+    if (selectedBoxIds.length === 0) {
+      showError?.('Please select at least one box to hand off');
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      if (!location) {
+        await handleGetLocation();
+      }
+      setIsConfirming(true);
+    } catch (error) {
+      console.error('Error initiating handoff:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedBoxIds.length, location, handleGetLocation, showError]);
+  
+  // Handle confirm handoff
+  const handleConfirmHandoff = useCallback(async (): Promise<void> => {
+    if (!location) {
+      showError?.('Location is required');
+      return;
+    }
+    
+    console.log('Initiating handoff with:', {
+      boxes: selectedBoxes.map(b => b.id),
+      pickupTime: defaultPickupTime.toISOString(),
+      contactNumber,
+      location
+    });
+    
+    setIsLoading(true);
+    
+    try {
+      // Update each selected box
+      const updatePromises = selectedBoxes.map(box => {
+        const update: UpdateBoxInput = {
+          id: box.id, // Include the id in the update object
+          status: 'transit' as BoxStatus,
+          locationId: handoffCode, // Add locationId to the update object
+          location: location.address || 'Pickup location',
+          timeline: [
+            ...(box.timeline || []),
+            {
+              status: 'transit',
+              time: new Date().toISOString(),
+              location: location.address || 'Pickup location',
+              details: `Box handed off to courier (Handoff Code: ${handoffCode})`,
+              // Store the full location data in metadata if needed
+              metadata: {
+                coordinates: {
+                  lat: location.lat,
+                  lng: location.lng
+                },
+                handoffCode
+              }
+            } as TimelineEvent
+          ]
+        };
+        return updateBox?.(box.id, update);
+      });
+      
+      await Promise.all(updatePromises);
+      setIsPendingCourier(true);
+      setStep('pending');
+      showSuccess?.('Courier has been notified!');
+    } catch (error) {
+      console.error('Error confirming handoff:', error);
+      showError?.('Failed to confirm handoff. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [location, selectedBoxes, handoffCode, updateBox, showSuccess, showError]);
+  
+  // Handle copy to clipboard
+  const handleCopyToClipboard = useCallback(async (): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(handoffCode);
+      setIsCopied(true);
+      showSuccess?.('Code copied to clipboard!');
+      
+      // Reset copied state after 3 seconds
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 3000);
+    } catch (err) {
+      console.error('Failed to copy code:', err);
+      showError?.('Failed to copy code to clipboard');
+    }
+  }, [handoffCode, showSuccess, showError]);
+
+  // Handle cancel handoff
+  const handleCancelHandoff = useCallback((): void => {
+    setSelectedBoxIds([]);
+    setLocation(null);
+    setLocationError(null);
+    setIsConfirming(false);
+    setIsPendingCourier(false);
+    setStep('select');
+    setIsCopied(false);
+  }, []);
+  
+  // Render loading state
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <FiLoader className={styles.loadingSpinner} />
+        <p>Loading boxes...</p>
+      </div>
+    );
+  }
+  
+  // Render error state
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <FiAlertCircle className={styles.errorIcon} />
+        <p>Error loading boxes: {error}</p>
+        <button 
+          className={styles.retryButton}
+          onClick={() => fetchBoxes()}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+  
+  // Render error state if location access is denied
+  if (locationError) {
+    return (
+      <div className={styles.errorContainer}>
+        <FiAlertCircle className={styles.errorIcon} />
+        <h3>Location Access Required</h3>
+        <p>{locationError}</p>
+        <button 
+          className={styles.retryButton}
+          onClick={handleGetLocation}
+          disabled={isLoadingLocation}
+        >
+          {isLoadingLocation ? 'Retrieving...' : 'Retry'}
+        </button>
+      </div>
+    );
+  }
+  
+  // Render pending courier state
+  if (isPendingCourier) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2>Waiting for Courier</h2>
+        </div>
+        <div className={styles.pendingContainer}>
+          <FiLoader className={styles.spinner} size={48} />
+          <h3>Waiting for courier to confirm pickup</h3>
+          <p>Please provide this code to the courier:</p>
+          <div className={styles.handoffCodeContainer}>
+            <div 
+              className={styles.handoffCode}
+              onClick={handleCopyToClipboard}
+              title="Click to copy code"
+            >
+              {handoffCode.split('').map((char, index) => (
+                <span 
+                  key={index} 
+                  className={styles.codeChar}
+                  style={{
+                    animationDelay: `${index * 0.1}s`
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+            </div>
+            <div className={styles.copyHint}>
+              {isCopied ? 'Copied!' : 'Click to copy'}
+            </div>
+          </div>
+          <button
+            className={styles.cancelButton}
+            onClick={handleCancelHandoff}
+            disabled={isLoading}
+          >
+            Cancel Handoff
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Render confirmation step
+  if (isConfirming) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <button onClick={() => setIsConfirming(false)} className={styles.backButton}>
+            <FiArrowLeft size={20} />
+          </button>
+          <h2>Confirm Handoff</h2>
+        </div>
+
+        <div className={styles.infoBox}>
+          <FiInfo className={styles.infoIcon} />
+          <div>
+            <p>You are about to request a courier for <strong>{selectedBoxes.length} box{selectedBoxes.length !== 1 ? 'es' : ''}</strong>.</p>
+            <p>Estimated pickup time: <strong>{formattedPickupTime}</strong></p>
+            <p>Contact number: <strong>{contactNumber}</strong></p>
+          </div>
+        </div>
+
+        <div className={styles.selectedBoxes}>
+          <h4>Selected Boxes:</h4>
+          <div className={styles.boxesList}>
+            {selectedBoxes.map(box => (
+              <div key={box.id} className={styles.selectedBoxItem}>
+                <div className={styles.boxName}>{box.name}</div>
+                <div className={styles.boxStatus}>{box.status}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.buttonGroup}>
+          <button 
+            className={`${styles.button} ${styles.cancelButton}`}
+            onClick={handleCancelHandoff}
+            disabled={isLoading}
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleConfirmHandoff}
+            disabled={isLoading}
+            className={styles.confirmButton}
+          >
+            {isLoading ? 'Confirming...' : 'Confirm Handoff'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Render main selection view
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <button onClick={() => navigate(-1)} className={styles.backButton}>
+          <FiArrowLeft size={20} />
+          Back
+        </button>
+        <h2>Handoff Boxes to Courier</h2>
+      </div>
+
+      <div className={styles.infoBox}>
+        <FiInfo className={styles.infoIcon} />
+        <div>
+          <p>Select the boxes you'd like to have picked up by a courier.</p>
+          <p>A courier will be notified to come to your current location.</p>
+        </div>
+      </div>
+
+      <div className={styles.locationSection}>
+        <h3>Pickup Location</h3>
+        <div className={styles.locationInfo}>
+          <FiMapPin className={styles.locationIcon} />
+          <span>Pickup location will be determined</span>
+        </div>
+      </div>
+
+      <div className={styles.boxesSection}>
+        <h3>Select Boxes ({selectedBoxes.length} selected)</h3>
+        <div className={styles.boxesList}>
+          {loading ? (
+            <div className={styles.emptyState}>
+              <FiLoader className={styles.spinner} size={32} />
+              <p>Loading boxes...</p>
+            </div>
+          ) : error ? (
+            <div className={styles.emptyState}>
+              <FiAlertCircle size={32} className={styles.errorIcon} />
+              <p>Error loading boxes. Please try again.</p>
+              <button 
+                className={styles.retryButton}
+                onClick={() => fetchBoxes()}
+              >
+                Retry
+              </button>
+            </div>
+          ) : availableBoxes.length === 0 ? (
+            <div className={styles.emptyState}>
+              <FiPackage size={48} className={styles.emptyIcon} />
+              <p>No boxes available for handoff</p>
+              <p className={styles.hint}>
+                Only boxes with status 'stored' or 'processing' can be handed off.
+              </p>
+            </div>
+          ) : (
+            availableBoxes.map((box: Box) => (
+              <div
+                key={box.id}
+                className={`${styles.boxItem} ${
+                  selectedBoxIds.includes(box.id) ? styles.selected : ''
+                }`}
+                onClick={() => toggleBoxSelection(box)}
+              >
+                <div className={styles.checkboxContainer}>
+                  <div className={styles.checkbox}>
+                    {selectedBoxIds.includes(box.id) ? (
+                      <div className={styles.checkboxChecked}><FiCheck size={16} /></div>
+                    ) : (
+                      <div className={styles.checkboxUnchecked} />
+                    )}
+                  </div>
+                </div>
+                <div className={styles.boxInfo}>
+                  <h4 className={styles.boxName}>{box.name}</h4>
+                  <div className={styles.boxMeta}>
+                    <span className={styles.boxStatus}>
+                      {box.status.charAt(0).toUpperCase() + box.status.slice(1)}
+                    </span>
+                    <span className={styles.boxSize}>
+                      {box.size}
+                    </span>
+                    <span className={styles.boxLocation}>
+                      <FiMapPin size={12} /> {box.location}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {selectedBoxes.length > 0 && (
+        <div className={styles.footer}>
+          <div className={styles.selectionInfo}>
+            {selectedBoxes.length} box{selectedBoxes.length !== 1 ? 'es' : ''} selected
+          </div>
+          <button
+            onClick={handleContinue}
+            className={styles.continueButton}
+          >
+            Continue to Confirmation
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default HandoffBox;

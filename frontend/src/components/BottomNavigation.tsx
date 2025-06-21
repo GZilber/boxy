@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@contexts/AuthContext';
 import { 
   FiHome, 
   FiPackage, 
@@ -29,9 +29,14 @@ interface NavItem {
 const BottomNavigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Don't render anything while loading
+  if (loading || !user) {
+    return null;
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -95,16 +100,16 @@ const BottomNavigation: React.FC = () => {
     },
     {
       path: '/request-pickup',
-      icon: <div className={styles.scanButton}><FiPlusCircle className={styles.scanIcon} /></div>,
-      activeIcon: <div className={`${styles.scanButton} ${styles.activeScanButton}`}><FiPlusCircle className={styles.scanIcon} /></div>,
+      icon: <FiTruck className={styles.icon} />,
+      activeIcon: <FiTruck className={`${styles.icon} ${styles.activeIcon}`} />,
       label: 'Request Pickup',
       showWhenLoggedIn: true
     },
     {
-      path: '/storage-locations',
-      icon: <FiMapPin className={styles.icon} />,
-      activeIcon: <FiMapPin className={`${styles.icon} ${styles.activeIcon}`} />,
-      label: 'Storage',
+      path: '/handoff',
+      icon: <FiTruck className={styles.icon} />,
+      activeIcon: <FiTruck className={`${styles.icon} ${styles.activeIcon}`} />,
+      label: 'Handoff',
       showWhenLoggedIn: true
     }
   ];

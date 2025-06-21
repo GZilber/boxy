@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FiMapPin, FiClock, FiPackage, FiSearch, FiArrowLeft, FiCheckCircle } from 'react-icons/fi';
 import { v4 as uuidv4 } from 'uuid';
-import { useBoxes } from '../context/BoxesContext';
+import { useBoxes } from '@contexts/BoxesContext';
 import BoxYLogo from '../components/BoxYLogo';
 import { Box } from '../types';
 import { TimelineEvent } from '../types/timeline';

@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+// Import types directly from box.ts to avoid any circular dependencies
+import type { Box, BoxStatus } from '../types/box';
 import { 
   FiPackage, 
   FiMapPin, 
@@ -14,24 +16,25 @@ import {
   FiGrid,
   FiList
 } from 'react-icons/fi';
-import { useBoxes } from '../context/BoxesContext';
+import { useBoxes } from '@contexts/BoxesContext';
 import BoxCard from '../components/BoxCard';
 import styles from '../styles/MyBoxes.module.css';
 
 const MyBoxes: React.FC = () => {
-  const { boxes, filteredBoxes, loading, error, setFilter } = useBoxes();
+  const { boxes, loading, error } = useBoxes();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const statusFilter = searchParams.get('status');
   
-  // Update filter when URL changes
-  useEffect(() => {
-    if (statusFilter && ['stored', 'transit', 'delivered'].includes(statusFilter)) {
-      setFilter({ status: statusFilter });
-    } else {
-      setFilter({});
-    }
-  }, [statusFilter, setFilter]);
+  // Filter boxes by status from URL
+  const filteredBoxes = useMemo<Box[]>(() => {
+    if (!statusFilter) return boxes;
+    return boxes.filter((box) => {
+      // Ensure status is properly typed as BoxStatus
+      const boxStatus: BoxStatus = box.status as BoxStatus;
+      return boxStatus === statusFilter;
+    });
+  }, [boxes, statusFilter]);
 
   if (loading) {
     return (
@@ -49,25 +52,44 @@ const MyBoxes: React.FC = () => {
     );
   }
   // Get box icon and label based on size
-  const getBoxSizeInfo = (size: string) => {
+  interface BoxSizeInfo {
+    emoji: string;
+    label: string;
+    size: string;
+  }
+
+  const getBoxSizeInfo = (size: string): BoxSizeInfo => {
     const sizeLower = size.toLowerCase();
-    const sizes = {
+    const sizes: Record<string, BoxSizeInfo> = {
       small: { emoji: 'S', label: 'Small', size: '16x12x10"' },
       medium: { emoji: 'M', label: 'Medium', size: '18x14x12"' },
       large: { emoji: 'L', label: 'Large', size: '22x16x15"' },
       xl: { emoji: 'XL', label: 'Extra Large', size: '24x18x18"' }
     };
-    return sizes[sizeLower as keyof typeof sizes] || { emoji: '📦', label: size, size: 'Varies' };
+    return sizes[sizeLower] || { emoji: '📦', label: size, size: 'Varies' };
   };
   // Get status details
-  const getStatusDetails = (status: string) => {
-    const statuses = {
+  type StatusKey = BoxStatus | string;
+  
+  interface StatusDetails {
+    label: string;
+    color: string;
+    bg: string;
+  }
+
+  const getStatusDetails = (status: StatusKey): StatusDetails => {
+    const statuses: Record<BoxStatus, StatusDetails> = {
       stored: { label: 'In Storage', color: '#4CAF50', bg: 'rgba(76, 175, 80, 0.1)' },
       transit: { label: 'In Transit', color: '#2196F3', bg: 'rgba(33, 150, 243, 0.1)' },
       delivered: { label: 'Delivered', color: '#9C27B0', bg: 'rgba(156, 39, 176, 0.1)' },
       processing: { label: 'Processing', color: '#FF9800', bg: 'rgba(255, 152, 0, 0.1)' }
     };
-    return statuses[status as keyof typeof statuses] || { label: status, color: '#666', bg: 'rgba(0, 0, 0, 0.05)' };
+    
+    return statuses[status as BoxStatus] || { 
+      label: status.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()), 
+      color: '#666', 
+      bg: 'rgba(0, 0, 0, 0.05)' 
+    };
   };
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { year: '2-digit', month: 'short', day: 'numeric' };
@@ -78,11 +100,25 @@ const MyBoxes: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter boxes by search query
-  const filteredBySearch = filteredBoxes.filter(box => 
-    box.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    box.contents?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    box.id.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredBySearch = useMemo<Box[]>(() => {
+    if (!searchQuery) return filteredBoxes;
+    const query = searchQuery.toLowerCase();
+    return filteredBoxes.filter((box) => {
+      const name = box.name ? String(box.name).toLowerCase() : '';
+      const contents = Array.isArray(box.contents) 
+        ? box.contents.join(' ').toLowerCase()
+        : box.contents 
+          ? String(box.contents).toLowerCase()
+          : '';
+      const id = String(box.id).toLowerCase();
+      
+      return (
+        name.includes(query) ||
+        contents.includes(query) ||
+        id.includes(query)
+      );
+    });
+  }, [filteredBoxes, searchQuery]);
 
   return (
     <div className={styles.myBoxesContainer}>

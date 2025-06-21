@@ -1,4 +1,10 @@
-import { TimelineEvent } from './types/timeline';
+export interface TimelineEvent {
+  status: string;
+  time: string;
+  location: string;
+  locationId?: string;
+  details: string;
+}
 
 export interface Box {
   id: string;
@@ -8,6 +14,7 @@ export interface Box {
   pickupTime: string;
   lastUpdated: string;
   createdAt: string;
+  ownerId: string;
   location?: string;
   currentLocation?: string;
   contents?: string;

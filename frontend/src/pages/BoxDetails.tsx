@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useBoxes } from '../context/BoxesContext';
+import { useBoxes } from '@contexts/BoxesContext';
 import BoxYLogo from '../components/BoxYLogo';
 import { FiArrowLeft, FiPackage, FiMapPin, FiCalendar, FiTruck, FiCheckCircle } from 'react-icons/fi';
 

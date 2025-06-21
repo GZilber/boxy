@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Box } from '../types';
+import { Box } from '../types/box';
 import { FiMapPin, FiTruck, FiCalendar, FiInfo } from 'react-icons/fi';
 import DeliveryTimer from './DeliveryTimer';
 
@@ -62,7 +62,15 @@ const BoxCard: React.FC<BoxCardProps> = ({
           
           {box.contents && (
             <p className="box-contents">
-              {box.contents.length > 80 ? `${box.contents.substring(0, 80)}...` : box.contents}
+              {Array.isArray(box.contents) 
+                ? box.contents.length > 0 
+                  ? box.contents[0].length > 80 
+                    ? `${box.contents[0].substring(0, 80)}...` 
+                    : box.contents[0]
+                  : 'No description'
+                : box.contents.length > 80 
+                  ? `${box.contents.substring(0, 80)}...` 
+                  : box.contents}
             </p>
           )}
           
@@ -136,7 +144,15 @@ const BoxCard: React.FC<BoxCardProps> = ({
         
         {box.contents && (
           <p className="list-item-contents">
-            {box.contents.length > 120 ? `${box.contents.substring(0, 120)}...` : box.contents}
+            {Array.isArray(box.contents)
+              ? box.contents.length > 0 
+                ? box.contents[0].length > 120 
+                  ? `${box.contents[0].substring(0, 120)}...` 
+                  : box.contents[0]
+                : 'No description'
+              : box.contents.length > 120 
+                ? `${box.contents.substring(0, 120)}...` 
+                : box.contents}
           </p>
         )}
       </div>
