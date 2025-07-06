@@ -1,0 +1,124 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.tabs {
+  display: flex;
+  background-color: white;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 0;
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab.active {
+  color: #0d6efd;
+  border-bottom: 2px solid #0d6efd;
+}
+
+.tabIcon {
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.actionCard {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.actionCard h2 {
+  margin: 0 0 0.75rem;
+  color: #212529;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.actionCard p {
+  color: #6c757d;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin: 0 auto;
+}
+
+.actionButton:hover {
+  background-color: #0b5ed7;
+}
+
+.buttonIcon {
+  margin-left: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.actionButton:hover .buttonIcon {
+  transform: translateX(4px);
+}
+
+/* Responsive adjustments */
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    border-left: 1px solid #e9ecef;
+    border-right: 1px solid #e9ecef;
+  }
+}
+
+/* Animation for tab switching */
+@keyframes fadeIn {
+  from { opacity: 0.5; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.actionCard {
+  animation: fadeIn 0.3s ease-out forwards;
+}

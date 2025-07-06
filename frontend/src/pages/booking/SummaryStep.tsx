@@ -1,28 +1,36 @@
 import React, { useState } from 'react';
-import { FaArrowLeft, FaBox, FaMapMarkerAlt, FaCheck, FaArrowRight } from 'react-icons/fa';
+import { FaArrowLeft, FaBox, FaMapMarkerAlt, FaCheck, FaArrowRight, FaImage } from 'react-icons/fa';
 import Slider from 'react-slider';
 import './Slider.css';
-import type { Box } from './types';
+import type { ItemDetails } from './BoxSelection';
+interface Address {
+  id: string;
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  isDefault?: boolean;
+}
 import styles from './Booking.module.css';
 
 interface SummaryStepProps {
-  selectedBox: Box | null;
-  selectedDate: string;
-  selectedTime: string;
-  pickupAddress: string;
+  itemDetails: ItemDetails | null;
+  address: Address | null;
+  date: string;
+  time: string;
   onBack: () => void;
   onConfirm: () => void;
-  isLoading: boolean;
+  loading: boolean;
 }
 
 export const SummaryStep: React.FC<SummaryStepProps> = ({
-  selectedBox,
-  selectedDate,
-  selectedTime,
-  pickupAddress,
+  itemDetails,
+  address,
+  date,
+  time,
   onBack,
   onConfirm,
-  isLoading,
+  loading,
 }) => {
   const [sliderValue, setSliderValue] = useState(0);
   const [isConfirmed, setIsConfirmed] = useState(false);
@@ -49,11 +57,25 @@ export const SummaryStep: React.FC<SummaryStepProps> = ({
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
-  // Calculate total price
-  const boxPrice = selectedBox?.price || 0;
+  const formatAddress = (addr: Address | null) => {
+    if (!addr) return 'No address selected';
+    return `${addr.street}, ${addr.city}, ${addr.state} ${addr.zipCode}`;
+  };
+
+  if (!itemDetails) {
+    return (
+      <div className={styles.bookingContainer}>
+        <p>No item details found. Please go back and add your items.</p>
+        <button onClick={onBack} className={styles.backButton}>
+          <FaArrowLeft /> Go Back
+        </button>
+      </div>
+    );
+  }
+
   const deliveryFee = 5;
   const setupFee = 3;
-  const total = boxPrice + deliveryFee + setupFee;
+  const total = deliveryFee + setupFee;
 
   return (
     <div className={styles.bookingContainer}>
@@ -63,6 +85,13 @@ export const SummaryStep: React.FC<SummaryStepProps> = ({
         </button>
         <h1 className={styles.pageTitle}>Order Summary</h1>
         <div style={{ width: 24 }}></div>
+        <button 
+          className={`${styles.confirmButton} ${loading ? styles.loading : ''}`}
+          disabled={loading}
+          onClick={onConfirm}
+        >
+          Confirm
+        </button>
       </div>
 
       <div className={styles.contentContainer}>
@@ -72,25 +101,49 @@ export const SummaryStep: React.FC<SummaryStepProps> = ({
           <div className={styles.step}></div>
         </div>
 
+        <div className={styles.summarySection}>
+          <h3 className={styles.summaryTitle}>Your Items</h3>
+          <div className={styles.summaryItem}>
+            <div className={styles.summaryItemIcon}>
+              <FaBox />
+            </div>
+            <div className={styles.summaryItemDetails}>
+              <h4>Item Details</h4>
+              <p>{itemDetails.description}</p>
+              <p>Estimated Size: {itemDetails.estimatedSize}</p>
+              {itemDetails.specialInstructions && (
+                <p>Special Instructions: {itemDetails.specialInstructions}</p>
+              )}
+            </div>
+          </div>
+
+          {itemDetails.photos.length > 0 && (
+            <div className={styles.photoGrid}>
+              {itemDetails.photos.map((photo, index) => (
+                <div key={index} className={styles.photoThumbnail}>
+                  <img src={photo} alt={`Item ${index + 1}`} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className={styles.summaryCard}>
           <h3>
-            <FaBox /> Selected Box
+            <FaBox /> Pricing Summary
           </h3>
           <div className={styles.summaryItem}>
-            <span>{selectedBox?.name} Storage</span>
-            <span className={styles.price}>€{boxPrice}/month</span>
-          </div>
-          <div className={styles.summaryItem}>
-            <span>Delivery Fee</span>
-            <span className={styles.price}>€{deliveryFee}</span>
+            <span>Pickup Fee</span>
+            <span className={styles.price}>€5.00</span>
           </div>
           <div className={styles.summaryItem}>
             <span>Setup Fee</span>
-            <span className={styles.price}>€{setupFee}</span>
+            <span className={styles.price}>€3.00</span>
           </div>
-          <div className={styles.summaryItem} style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
-            <strong>Total First Month</strong>
-            <span className={styles.total}>€{total}</span>
+          <div className={styles.summaryDivider}></div>
+          <div className={`${styles.summaryItem} ${styles.total}`}>
+            <span>Total</span>
+            <span className={styles.price}>€{total.toFixed(2)}</span>
           </div>
         </div>
 
@@ -100,18 +153,15 @@ export const SummaryStep: React.FC<SummaryStepProps> = ({
           </h3>
           <div className={styles.summaryItem}>
             <span>Date</span>
-            <span><strong>{formatDate(selectedDate)}</strong></span>
+            <span><strong>{formatDate(date)}</strong></span>
           </div>
           <div className={styles.summaryItem}>
             <span>Time Slot</span>
-            <span><strong>{selectedTime || 'Not selected'}</strong></span>
+            <span><strong>{time || 'Not selected'}</strong></span>
           </div>
           <div className={styles.summaryItem}>
             <span>Delivery Address</span>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontWeight: '500' }}>Home</div>
-              <div style={{ fontSize: '14px', color: '#6b7280' }}>{pickupAddress}</div>
-            </div>
+            <p>{formatAddress(address)}</p>
           </div>
         </div>
 

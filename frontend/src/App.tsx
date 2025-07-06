@@ -10,18 +10,20 @@ import { ThemeProvider } from '@contexts/ThemeContext';
 import { ToastProvider } from '@contexts/ToastContext';
 import Layout from './components/layout/Layout';
 import BottomNavigation from './components/BottomNavigation';
-import Splash from './pages/Splash';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
-import MyBoxes from './pages/MyBoxes';
-import BoxDetails from './pages/BoxDetails';
-import RegisterBox from './pages/RegisterBox';
-import RequestPickup from './pages/RequestPickup';
-import HandoffBox from './pages/HandoffBox';
-// Scan functionality has been removed and replaced with photo upload
+import MyItems from './pages/MyItems';
+import ItemDetails from './pages/ItemDetails';
+import BoxDetails from './pages/BoxDetails'; // Keep for now for any direct links
+import RegisterBox from './pages/RegisterBox'; // Keep for now for any direct links
+import FlowSelection from './pages/FlowSelection';
+import BoxActions from './pages/BoxActions';
 import ProfileScreen from './pages/ProfileScreen';
+// Keep these imports for now as they might be used in other components
+import StoreItemsFlow from './pages/StoreItemsFlow';
+import RequestItemsFlow from './pages/RequestItemsFlow';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -144,28 +146,25 @@ const AppContent = () => {
   };
   return (
     <Routes>
-      {/* Public Routes */}
+      {/* Redirect root to login for unauthenticated users, dashboard for authenticated */}
       <Route path="/" element={
         <PublicRoute>
-          <Layout>
-            <Home />
-          </Layout>
+          <Navigate to="/login" replace />
         </PublicRoute>
       } />
+      
+      {/* Public Routes - Only login and signup are accessible when not authenticated */}
       <Route path="/login" element={
         <PublicRoute>
-          <Layout>
-            <Login />
-          </Layout>
+          <Login />
         </PublicRoute>
       } />
       <Route path="/signup" element={
         <PublicRoute>
-          <Layout>
-            <Signup />
-          </Layout>
+          <Signup />
         </PublicRoute>
       } />
+      
       {/* Keep old /register route as a redirect for backward compatibility */}
       <Route path="/register" element={
         <PublicRoute>
@@ -181,13 +180,26 @@ const AppContent = () => {
           </Layout>
         </ProtectedRoute>
       } />
-      <Route path="/my-boxes" element={
+      <Route path="/my-items" element={
         <ProtectedRoute>
           <Layout>
-            <MyBoxes />
+            <MyItems />
           </Layout>
         </ProtectedRoute>
       } />
+      {/* Redirect old my-boxes route to my-items */}
+      <Route path="/my-boxes" element={
+        <Navigate to="/my-items" replace />
+      } />
+      {/* Keep box details route for now for any direct links */}
+      <Route path="/item/:id" element={
+        <ProtectedRoute>
+          <Layout>
+            <ItemDetails />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      {/* Keep box details route for now for any direct links */}
       <Route path="/box/:id" element={
         <ProtectedRoute>
           <Layout>
@@ -202,21 +214,30 @@ const AppContent = () => {
           </Layout>
         </ProtectedRoute>
       } />
-      <Route path="/request-pickup" element={
+
+      <Route path="/store-items" element={
         <ProtectedRoute>
           <Layout>
-            <RequestPickup />
+            <StoreItemsFlow />
           </Layout>
         </ProtectedRoute>
       } />
-      <Route path="/handoff" element={
+      <Route path="/request-items" element={
         <ProtectedRoute>
           <Layout>
-            <HandoffBox />
+            <RequestItemsFlow />
           </Layout>
         </ProtectedRoute>
       } />
-      {/* Scan routes have been removed in favor of photo upload */}
+      
+      {/* Redirect old routes to new ones */}
+      <Route path="/box-actions" element={
+        <Navigate to="/store-items" replace />
+      } />
+      <Route path="/flow-selection" element={
+        <Navigate to="/store-items" replace />
+      } />
+      
       <Route path="/profile" element={
         <ProtectedRoute>
           <Layout>
@@ -225,12 +246,15 @@ const AppContent = () => {
         </ProtectedRoute>
       } />
 
+      {/* Redirect old routes to new flow */}
+      <Route path="/handoff" element={
+        <Navigate to="/box-actions" replace />
+      } />
       <Route path="/store-box" element={
-        <ProtectedRoute>
-          <Layout>
-            <RegisterBox />
-          </Layout>
-        </ProtectedRoute>
+        <Navigate to="/box-actions" replace />
+      } />
+      <Route path="/request-pickup" element={
+        <Navigate to="/box-actions" replace />
       } />
     </Routes>
   );

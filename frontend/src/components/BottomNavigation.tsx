@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '@contexts/AuthContext';
+import { useAuth, AuthContextType } from '@contexts/AuthContext';
 import { 
   FiHome, 
   FiPackage, 
-  FiPlusCircle, 
-  FiUser, 
-  FiUserPlus,
-  FiTruck,
-  FiMapPin,
-  FiSettings,
-  FiLogIn,
-  FiLogOut,
-  FiBox
+  FiUser,
+  FiUpload,
+  FiDownload,
+  FiInbox,
+  FiLogOut
 } from 'react-icons/fi';
 import styles from '../styles/BottomNavigation.module.css';
 
@@ -29,11 +25,11 @@ interface NavItem {
 const BottomNavigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loading } = useAuth() as AuthContextType;
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Don't render anything while loading
+  // Don't render anything while loading or if user is not logged in
   if (loading || !user) {
     return null;
   }
@@ -83,63 +79,55 @@ const BottomNavigation: React.FC = () => {
     return null;
   }
 
-  const mainNavItems: NavItem[] = [
-    { 
-      path: '/', 
+  const navItems: NavItem[] = [
+    {
+      path: '/dashboard',
       icon: <FiHome className={styles.icon} />,
       activeIcon: <FiHome className={`${styles.icon} ${styles.activeIcon}`} />,
       label: 'Home',
-      exact: true
-    },
-    { 
-      path: '/my-boxes',
-      icon: <FiPackage className={styles.icon} />,
-      activeIcon: <FiPackage className={`${styles.icon} ${styles.activeIcon}`} />,
-      label: 'My Boxes',
+      exact: true,
       showWhenLoggedIn: true
     },
     {
-      path: '/request-pickup',
-      icon: <FiTruck className={styles.icon} />,
-      activeIcon: <FiTruck className={`${styles.icon} ${styles.activeIcon}`} />,
-      label: 'Request Pickup',
+      path: '/my-items',
+      icon: <FiInbox className={styles.icon} />,
+      activeIcon: <FiInbox className={`${styles.icon} ${styles.activeIcon}`} />,
+      label: 'My Storage',
       showWhenLoggedIn: true
     },
     {
-      path: '/handoff',
-      icon: <FiTruck className={styles.icon} />,
-      activeIcon: <FiTruck className={`${styles.icon} ${styles.activeIcon}`} />,
-      label: 'Handoff',
+      path: '/store-items',
+      icon: <FiUpload className={styles.icon} />,
+      activeIcon: <FiUpload className={`${styles.icon} ${styles.activeIcon}`} />,
+      label: 'Store Items',
+      showWhenLoggedIn: true
+    },
+    {
+      path: '/request-items',
+      icon: <FiDownload className={styles.icon} />,
+      activeIcon: <FiDownload className={`${styles.icon} ${styles.activeIcon}`} />,
+      label: 'Request Items',
+      showWhenLoggedIn: true
+    },
+    {
+      path: '/profile',
+      icon: <FiUser className={styles.icon} />,
+      activeIcon: <FiUser className={`${styles.icon} ${styles.activeIcon}`} />,
+      label: 'Profile',
+      showWhenLoggedIn: true
+    },
+    {
+      path: '/logout',
+      icon: <FiLogOut className={styles.icon} />,
+      activeIcon: <FiLogOut className={`${styles.icon} ${styles.activeIcon}`} />,
+      label: 'Logout',
       showWhenLoggedIn: true
     }
   ];
 
-  const authNavItems: NavItem[] = [
-    {
-      path: '/login',
-      icon: <FiLogIn className={styles.icon} />,
-      activeIcon: <FiLogIn className={`${styles.icon} ${styles.activeIcon}`} />,
-      label: 'Login',
-      showWhenLoggedOut: true
-    },
-    {
-      path: '/register',
-      icon: <FiUserPlus className={styles.icon} />,
-      activeIcon: <FiUserPlus className={`${styles.icon} ${styles.activeIcon}`} />,
-      label: 'Register',
-      showWhenLoggedOut: true
-    }
-  ];
-
-  const navItems = user 
-    ? [...mainNavItems, {
-        path: '/profile',
-        icon: <FiUser className={styles.icon} />,
-        activeIcon: <FiUser className={`${styles.icon} ${styles.activeIcon}`} />,
-        label: 'Profile',
-        showWhenLoggedIn: true
-      }]
-    : [...mainNavItems.filter(item => !item.showWhenLoggedIn), ...authNavItems];
+  const filteredNavItems = user 
+    ? navItems.filter(item => item.showWhenLoggedIn)
+    : navItems.filter(item => item.showWhenLoggedOut);
 
   const isActive = (item: NavItem) => {
     if (item.exact) {
@@ -148,8 +136,14 @@ const BottomNavigation: React.FC = () => {
     return location.pathname.startsWith(item.path);
   };
 
-  const handleNavClick = (path: string) => {
-    navigate(path);
+  const handleNavClick = (item: NavItem) => {
+    if (item.path === '/logout') {
+      logout();
+      navigate('/login');
+      return;
+    }
+    
+    navigate(item.path);
     if (isMobile) {
       setIsMenuOpen(false);
     }
@@ -162,8 +156,8 @@ const BottomNavigation: React.FC = () => {
         return (
           <button
             key={item.path}
-            className={`${styles.navItem} ${active ? styles.active : ''}`}
-            onClick={() => handleNavClick(item.path)}
+            className={`${styles.navItem} ${active ? styles.active : ''} ${item.path === '/logout' ? styles.logoutButton : ''}`}
+            onClick={() => handleNavClick(item)}
             aria-label={item.label}
           >
             <div className={styles.iconContainer}>
@@ -195,7 +189,7 @@ const BottomNavigation: React.FC = () => {
     <nav className={styles.sidebar}>
       <div className={styles.sidebarHeader}>
         <div className={styles.logo}>
-          <FiBox size={24} className={styles.logoIcon} />
+          <FiPackage size={24} className={styles.logoIcon} />
           <h2>BoxY</h2>
         </div>
       </div>

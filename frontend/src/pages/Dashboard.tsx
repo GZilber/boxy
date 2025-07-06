@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiPackage, FiTruck, FiCheckCircle, FiPlus, FiBox, FiLogOut, FiUserCheck } from 'react-icons/fi';
+import { FiPackage, FiTruck, FiCheckCircle, FiPlus, FiBox, FiLogOut, FiUserCheck, FiInbox, FiUpload, FiDownload } from 'react-icons/fi';
 import { useBoxes } from '@contexts/BoxesContext';
 import { useAuth } from '@contexts/AuthContext';
 import styles from './Dashboard.module.css';
@@ -25,44 +25,44 @@ const Dashboard: React.FC = () => {
     navigate(`/my-boxes?${params.toString()}`);
   };
 
-  // Calculate stats from boxes data
+  // Calculate stats from items data
   const stats = useMemo(() => {
     if (loading) return {
-      totalBoxes: 0,
+      totalItems: 0,
       inTransit: 0,
-      delivered: 0,
       inStorage: 0
     };
 
+    // In a real app, these would come from your items API
+    // For now, we'll use mock data
     return {
-      totalBoxes: boxes.length,
-      inTransit: boxes.filter(box => box.status === 'transit').length,
-      delivered: boxes.filter(box => box.status === 'delivered').length,
-      inStorage: boxes.filter(box => box.status === 'stored').length
+      totalItems: 24,
+      inTransit: 2,
+      inStorage: 22
     };
-  }, [boxes, loading]);
+  }, [loading]);
 
   const quickActions = [
     {
-      title: 'Store a Box',
-      description: 'Register a new storage box',
-      icon: <FiBox size={24} />,
+      title: 'Store Items',
+      description: 'Schedule a pickup to store your items',
+      icon: <FiPackage size={24} />,
       color: 'var(--primary-500)',
-      action: () => navigate('/store-box')
+      action: () => navigate('/store-items')
     },
     {
-      title: 'Handoff to Courier',
-      description: 'Transfer box to a courier',
-      icon: <FiUserCheck size={24} />,
-      color: 'var(--accent-500)',
-      action: () => navigate('/handoff')
-    },
-    {
-      title: 'Request Pickup',
-      description: 'Schedule a box pickup',
-      icon: <FiTruck size={24} />,
+      title: 'Request Items',
+      description: 'Retrieve your stored items',
+      icon: <FiInbox size={24} />,
       color: 'var(--success-500)',
-      action: () => navigate('/request-pickup')
+      action: () => navigate('/request-items')
+    },
+    {
+      title: 'My Storage',
+      description: 'View all your stored items',
+      icon: <FiBox size={24} />,
+      color: 'var(--warning-500)',
+      action: () => navigate('/my-items')
     }
   ];
 
@@ -97,38 +97,24 @@ const Dashboard: React.FC = () => {
 
       {/* Stats Cards */}
       <div className={styles.statsGrid}>
-        <div onClick={() => handleStatusClick(null)} style={{ cursor: 'pointer' }}>
-          <StatCard 
-            title="Total Boxes"
-            value={stats.totalBoxes}
-            icon={<FiPackage size={24} />}
-            color="var(--primary-500)"
-          />
-        </div>
-        <div onClick={() => handleStatusClick('stored')} style={{ cursor: 'pointer' }}>
-          <StatCard 
-            title="In Storage"
-            value={stats.inStorage}
-            icon={<FiPackage size={24} />}
-            color="var(--accent-500)"
-          />
-        </div>
-        <div onClick={() => handleStatusClick('transit')} style={{ cursor: 'pointer' }}>
-          <StatCard 
-            title="In Transit"
-            value={stats.inTransit}
-            icon={<FiTruck size={24} />}
-            color="var(--warning-500)"
-          />
-        </div>
-        <div onClick={() => handleStatusClick('delivered')} style={{ cursor: 'pointer' }}>
-          <StatCard 
-            title="Delivered"
-            value={stats.delivered}
-            icon={<FiCheckCircle size={24} />}
-            color="var(--success-500)"
-          />
-        </div>
+        <StatCard 
+          title="Total Items" 
+          value={stats.totalItems} 
+          icon={<FiPackage />} 
+          color="#4F46E5" 
+        />
+        <StatCard 
+          title="In Transit" 
+          value={stats.inTransit} 
+          icon={<FiTruck />} 
+          color="#F59E0B" 
+        />
+        <StatCard 
+          title="In Storage" 
+          value={stats.inStorage} 
+          icon={<FiPackage />} 
+          color="#10B981" 
+        />
       </div>
 
       {/* Quick Actions */}

@@ -1,0 +1,232 @@
+.container {
+  width: 100%;
+  margin: 1.5rem 0;
+  --thumb-size: 48px;
+  --track-height: 56px;
+  --border-radius: 28px;
+  --transition-duration: 0.2s;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --bg-tertiary: #f3f4f6;
+  --white: #ffffff;
+}
+
+/* Track styles */
+.track {
+  position: relative;
+  width: 100%;
+  height: var(--track-height);
+  background-color: var(--bg-tertiary);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s ease;
+}
+
+/* Track fill (progress indicator) */
+.trackFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background: var(--primary);
+  border-radius: var(--border-radius);
+  transition: width var(--transition-duration) cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width;
+}
+
+/* Thumb (draggable handle) */
+.thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(var(--thumb-size) - 8px);
+  height: calc(var(--thumb-size) - 8px);
+  background: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  z-index: 2;
+  transform: translateX(0);
+  transition: 
+    transform var(--transition-duration) cubic-bezier(0.4, 0, 0.2, 1),
+    background-color var(--transition-duration) ease;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.thumb.dragging {
+  transform: translateX(0) scale(1.05);
+}
+
+/* Arrow icon inside thumb */
+.arrowIcon {
+  color: var(--primary);
+  font-size: 1.25rem;
+  transition: color var(--transition-duration) ease;
+}
+
+/* Slider text */
+.sliderText {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.5;
+  pointer-events: none;
+  z-index: 1;
+  user-select: none;
+  transition: color var(--transition-duration) ease;
+}
+
+/* Confirmed state content */
+.confirmedContent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-weight: 600;
+  font-size: 1rem;
+  z-index: 3;
+  pointer-events: none;
+  background-color: var(--success);
+  transition: background-color 0.3s ease;
+}
+
+.checkIcon {
+  margin-left: 8px;
+  font-size: 1.1em;
+}
+
+/* Help text below slider */
+.helpText {
+  margin-top: 0.75rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  transition: color var(--transition-duration) ease;
+}
+
+/* Price tag */
+.priceTag {
+  margin-left: 0.5rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Loading spinner */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--primary);
+  animation: spin 1s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Disabled state */
+.disabled .track {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.disabled .trackFill {
+  background-color: var(--text-secondary);
+}
+
+/* Loading state */
+.loading .track {
+  cursor: progress;
+}
+
+.loading .trackFill {
+  background-color: var(--primary);
+  opacity: 0.7;
+  transition: width 0.5s ease;
+}
+
+/* Confirmed state */
+.confirmed .trackFill {
+  background-color: var(--success);
+  width: 100% !important;
+}
+
+.confirmed .thumb {
+  background-color: var(--success-light);
+  transform: translateX(calc(100% - 4px)) !important;
+}
+
+.confirmed .arrowIcon {
+  color: var(--success);
+}
+
+/* Hover and active states */
+@media (hover: hover) and (pointer: fine) {
+  .container:not(.disabled):not(.loading):not(.confirmed) .track:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .container:not(.disabled):not(.loading):not(.confirmed) .track:hover .trackFill {
+    background-color: var(--primary-hover);
+  }
+  
+  .container:not(.disabled):not(.loading):not(.confirmed) .track:hover .thumb {
+    transform: translateX(0) scale(1.05);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .container {
+    --thumb-size: 44px;
+    --track-height: 52px;
+  }
+  
+  .sliderText {
+    font-size: 0.9375rem;
+  }
+  
+  .helpText {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .trackFill,
+  .thumb,
+  .spinner {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaArrowLeft, FaBoxOpen, FaTruck, FaWarehouse, FaMobileAlt, FaHome } from 'react-icons/fa';
+import { FaArrowLeft, FaBox, FaTruck, FaShieldAlt, FaCamera, FaBoxOpen } from 'react-icons/fa';
 import styles from './Booking.module.css';
 
 interface ServiceFlowStepProps {
@@ -10,29 +10,24 @@ interface ServiceFlowStepProps {
 export const ServiceFlowStep: React.FC<ServiceFlowStepProps> = ({ onContinue, onBack }) => {
   const steps = [
     {
-      icon: <FaBoxOpen className={styles.flowIcon} />,
-      title: 'Pack Your Items',
-      description: 'Securely pack your items in a box of your choice'
+      icon: <FaCamera className={styles.flowIcon} />,
+      title: 'Snap & Send',
+      description: 'Take photos of the items you wish to store'
     },
     {
       icon: <FaTruck className={styles.flowIcon} />,
-      title: 'We Collect',
-      description: 'We pick up your packed box at the scheduled time'
+      title: 'Courier Collection',
+      description: 'Our partner courier collects your items from your location'
     },
     {
-      icon: <FaWarehouse className={styles.flowIcon} />,
+      icon: <FaShieldAlt className={styles.flowIcon} />,
       title: 'Secure Storage',
       description: 'Your items are stored safely in our secure facility'
     },
     {
-      icon: <FaMobileAlt className={styles.flowIcon} />,
-      title: 'Request Return',
-      description: 'Use the app to request your items back anytime'
-    },
-    {
-      icon: <FaHome className={styles.flowIcon} />,
-      title: 'We Deliver',
-      description: 'We bring your items back to you when needed'
+      icon: <FaBox className={styles.flowIcon} />,
+      title: 'On-Demand Returns',
+      description: 'Get your items back whenever you need them'
     }
   ];
 
@@ -75,7 +70,7 @@ export const ServiceFlowStep: React.FC<ServiceFlowStepProps> = ({ onContinue, on
             className={styles.continueButton}
             onClick={onContinue}
           >
-            Continue to Box Selection
+            Get Started
           </button>
         </div>
       </div>

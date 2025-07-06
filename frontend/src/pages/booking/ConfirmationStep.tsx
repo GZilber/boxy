@@ -1,22 +1,37 @@
 import React from 'react';
-import { FaCheck, FaArrowLeft } from 'react-icons/fa';
-import type { Box } from './types';
+import { FaCheck, FaHome, FaCalendarAlt, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
 import styles from './Booking.module.css';
+import type { ItemDetails } from './BoxSelection';
+interface Address {
+  id: string;
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  isDefault?: boolean;
+}
 
 interface ConfirmationStepProps {
-  selectedBox: Box | null;
-  selectedDate: string;
-  selectedTime: string;
-  onTrackOrder: () => void;
+  orderNumber: string;
+  onBackToHome: () => void;
+  message: string;
+  itemDetails?: ItemDetails;
+  address?: Address | null;
+  date?: string;
+  time?: string;
 }
 
 export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
-  selectedBox,
-  selectedDate,
-  selectedTime,
-  onTrackOrder,
+  orderNumber,
+  onBackToHome,
+  message,
+  itemDetails,
+  address,
+  date,
+  time,
 }) => {
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Not specified';
     const options: Intl.DateTimeFormatOptions = { 
       weekday: 'long', 
       month: 'short', 
@@ -25,58 +40,70 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
+  const formatAddress = (addr?: Address | null) => {
+    if (!addr) return 'No address specified';
+    return `${addr.street}, ${addr.city}, ${addr.state} ${addr.zipCode}`;
+  };
+
   return (
     <div className={styles.bookingContainer}>
-      <div className={styles.header}>
-        <div style={{ width: 24 }}></div>
-        <h2>Order Confirmed</h2>
-        <button className={styles.closeButton} onClick={onTrackOrder}>
-          ✕
-        </button>
-      </div>
-
       <div className={styles.confirmationContent}>
         <div className={styles.successIcon}>
           <FaCheck />
         </div>
-        <h2>Order Confirmed!</h2>
-        <p>
-          Your box delivery has been scheduled.<br />
-          Order #SS-{new Date().getFullYear()}-{Math.floor(100 + Math.random() * 900)}
+        <h2>Pickup Scheduled!</h2>
+        <p className={styles.confirmationMessage}>
+          {message || 'Your pickup request has been received.'}
+        </p>
+        
+        <p className={styles.orderNumber}>
+          Order #{orderNumber}
         </p>
 
-        <div className={styles.summaryCard}>
-          <div className={styles.summaryItem}>
-            <span>Delivery Date</span>
-            <span>{formatDate(selectedDate)}</span>
+        {(date || time || address) && (
+          <div className={styles.summaryCard}>
+            <h3>
+              <FaCalendarAlt /> Pickup Details
+            </h3>
+            
+            {date && (
+              <div className={styles.summaryItem}>
+                <span>Date</span>
+                <span>{formatDate(date)}</span>
+              </div>
+            )}
+            
+            {time && (
+              <div className={styles.summaryItem}>
+                <span>Time Slot</span>
+                <span>{time}</span>
+              </div>
+            )}
+            
+            {address && (
+              <div className={styles.summaryItem}>
+                <span>Address</span>
+                <div className={styles.addressText}>
+                  <FaMapMarkerAlt className={styles.addressIcon} />
+                  <div>{formatAddress(address)}</div>
+                </div>
+              </div>
+            )}
           </div>
-          <div className={styles.summaryItem}>
-            <span>Time</span>
-            <span>{selectedTime}</span>
-          </div>
-          <div className={styles.summaryItem}>
-            <span>Box Type</span>
-            <span>{selectedBox?.name}</span>
-          </div>
-          <div className={styles.summaryItem}>
-            <span>Monthly Cost</span>
-            <span>€{selectedBox?.price}/month</span>
-          </div>
-        </div>
+        )}
 
-        <div className={`${styles.infoBox} ${styles.important}`}>
-          <h4>Important</h4>
-          <p>Please have your items ready to pack. Our courier will wait 10 minutes for you to pack your box.</p>
+        <div className={styles.ctaSection}>
+          <button 
+            className={styles.primaryButton}
+            onClick={onBackToHome}
+          >
+            <FaHome /> Back to Home
+          </button>
+          
+          <p className={styles.helpText}>
+            Need help? Contact our support team at support@boxy.com
+          </p>
         </div>
-      </div>
-
-      <div className={styles.ctaSection}>
-        <button 
-          className={styles.ctaBtn}
-          onClick={onTrackOrder}
-        >
-          Track Your Order
-        </button>
       </div>
     </div>
   );

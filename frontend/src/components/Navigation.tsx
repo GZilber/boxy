@@ -120,10 +120,17 @@ const Navigation: React.FC = () => {
       showWhenLoggedIn: true
     },
     {
-      path: '/request-pickup',
+      path: '/store-items',
+      icon: <FiPackage />,
+      activeIcon: <FiPackage />,
+      label: 'Store Items',
+      showWhenLoggedIn: true
+    },
+    {
+      path: '/request-items',
       icon: <FiTruck />,
       activeIcon: <FiTruck />,
-      label: 'Request Pickup',
+      label: 'Request Items',
       showWhenLoggedIn: true
     },
     {

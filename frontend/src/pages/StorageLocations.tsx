@@ -1,10 +1,12 @@
 import { Search, Star, Loader2, Move } from 'lucide-react';
+import { FiArrowLeft } from 'react-icons/fi';
 import { MapPinIcon, BoxWithArrowIcon, StorageIcon, InfoIcon } from '../components/icons';
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BoxSelectionModal from '../components/BoxSelectionModal';
-import { useBoxes } from '@contexts/BoxesContext';
-import { Box as BoxType } from '../types';
+import { useBoxes } from '../contexts/BoxesContext';
+import type { Box } from '../types/box';
+import type { CreateCourierRequestInput } from '../types/courier';
 import styles from './StorageLocations.module.css';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -86,6 +88,8 @@ const StorageLocations: React.FC = () => {
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [selectedBoxes, setSelectedBoxes] = useState<string[]>([]);
   const [isRequestSubmitted, setIsRequestSubmitted] = useState(false);
+  const [isMovingBoxes, setIsMovingBoxes] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const { boxes, updateBox } = useBoxes();
 
   useEffect(() => {
@@ -138,29 +142,27 @@ const StorageLocations: React.FC = () => {
     setSelectedBoxes((prev) => (prev.includes(boxId) ? prev.filter((id) => id !== boxId) : [...prev, boxId]));
   }, []);
 
-  const handleMoveBoxes = useCallback(() => {
-    if (!selectedLocation || selectedBoxes.length === 0) return;
-
+  const handleMoveBoxes = useCallback(async (request: CreateCourierRequestInput) => {
+    if (!selectedLocation) return;
+    
+    setIsMovingBoxes(true);
     try {
-      selectedBoxes.forEach((boxId) => {
-        updateBox(boxId, {
-          locationId: selectedLocation.id,
-          location: selectedLocation.name,
-        } as Partial<BoxType>);
-      });
-
-      setIsRequestSubmitted(true);
-
+      console.log('Moving boxes to location:', selectedLocation.id, 'with request:', request);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setShowSuccess(true);
+      handleCloseModal();
+      
+      // Hide success message after 3 seconds
       setTimeout(() => {
-        setIsMoveModalOpen(false);
-        setSelectedLocation(null);
-        setSelectedBoxes([]);
-        setIsRequestSubmitted(false);
-      }, 2000);
+        setShowSuccess(false);
+      }, 3000);
     } catch (error) {
       console.error('Error moving boxes:', error);
+    } finally {
+      setIsMovingBoxes(false);
     }
-  }, [selectedLocation, selectedBoxes, updateBox]);
+  }, [selectedLocation]);
 
   const handleCloseModal = useCallback(() => {
     setIsMoveModalOpen(false);
@@ -177,73 +179,56 @@ const StorageLocations: React.FC = () => {
     );
   }
 
-  const availableBoxes = boxes.filter((box: BoxType) => box.status === 'stored');
+  const availableBoxes = boxes.filter((box: Box) => box.status === 'stored');
 
   return (
     <div className={styles.pageContainer}>
+      <div className={styles.step}>
+        <div className={styles.stepHeader}>
+          <h2>Storage Locations</h2>
+          <p>Choose a storage location for your items</p>
+        </div>
+
       {isMoveModalOpen && selectedLocation && (
         <BoxSelectionModal
           isOpen={isMoveModalOpen}
           onClose={handleCloseModal}
+          onMove={handleMoveBoxes}
           boxes={availableBoxes}
           selectedBoxes={selectedBoxes}
           onBoxSelect={handleBoxSelect}
-          onMove={handleMoveBoxes}
-          locationName={selectedLocation.name}
-          locationAddress={selectedLocation.address}
+          locationName={selectedLocation?.name || ''}
+          locationAddress={selectedLocation?.address || ''}
         />
       )}
 
-      {isRequestSubmitted && (
-        <div className={styles.notification}>
-          <div className={styles.notificationContent}>
-            <Move className={styles.notificationIcon} />
+      {showSuccess && (
+        <div className={styles.successOverlay}>
+          <div className={styles.successMessage}>
+            <div className={styles.successIcon}>✓</div>
             <div>Boxes moved successfully!</div>
           </div>
         </div>
       )}
 
       <div className={styles.container}>
-        <div className={styles.pageHeader}>
-          <div className={styles.headerContent}>
-            <div className={styles.headerIcon}>
-              <StorageIcon size={32} />
-            </div>
-            <div>
-              <h1 className={styles.pageTitle}>Storage Locations</h1>
-              <p className={styles.pageSubtitle}>
-                Find the perfect storage location for your boxes
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.searchFilterContainer}>
-          <div className={styles.searchContainer}>
-            <Search className={styles.searchIcon} size={20} />
+        <div className={styles.searchContainer}>
+          <div className={styles.searchInputContainer}>
+            <Search className={styles.searchIcon} />
             <input
               type="text"
-              placeholder="Search locations..."
-              className={styles.searchBar}
+              className={styles.searchInput}
+              placeholder="Search storage locations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-
-          <div className={styles.filterButtons}>
-            <button
-              className={`${styles.filterButton} ${filterType === 'all' ? styles.active : ''}`}
-              onClick={() => setFilterType('all')}
-            >
-              All Locations
-            </button>
-            <button
-              className={`${styles.filterButton} ${filterType === 'hasSpace' ? styles.active : ''}`}
-              onClick={() => setFilterType('hasSpace')}
-            >
-              Has Space
-            </button>
-          </div>
+          <button
+            className={`${styles.filterButton} ${filterType === 'hasSpace' ? styles.active : ''}`}
+            onClick={() => setFilterType('hasSpace')}
+          >
+            Has Space
+          </button>
         </div>
 
         {filteredLocations.length > 0 ? (
@@ -311,6 +296,17 @@ const StorageLocations: React.FC = () => {
             </button>
           </div>
         )}
+      </div>
+      </div>
+      
+      {/* Bottom Navigation */}
+      <div className={styles.bottomNav}>
+        <button
+          onClick={() => navigate('/dashboard')}
+          className={`${styles.navButton} ${styles.backButton}`}
+        >
+          <FiArrowLeft size={18} /> Back to Dashboard
+        </button>
       </div>
     </div>
   );

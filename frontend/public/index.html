@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoxY - Store & Track Your Items</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons@4.28.0/dist/feather.min.js"></script>
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="#" class="logo" onclick="showSection('dashboard')">
+                <i data-feather="box"></i>
+                BoxY
+            </a>
+            <div class="user-menu">
+                <button id="loginBtn" class="btn btn-outline btn-sm" onclick="showLogin()">
+                    <i data-feather="log-in"></i> Log In
+                </button>
+                <div id="userProfile" class="hidden" style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="user-avatar" style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 600;" id="userInitials">
+                        JD
+                    </div>
+                    <div class="user-dropdown" style="position: relative;">
+                        <button class="btn btn-ghost" style="padding: 0.25rem;" onclick="toggleDropdown('profileDropdown')">
+                            <i data-feather="chevron-down" width="16" height="16"></i>
+                        </button>
+                        <div id="profileDropdown" class="dropdown-menu hidden" style="position: absolute; right: 0; top: 100%; margin-top: 0.5rem; background: white; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); min-width: 200px; z-index: 50;">
+                            <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--gray-200);">
+                                <div style="font-weight: 600;" id="userName">John Doe</div>
+                                <div style="font-size: 0.75rem; color: var(--gray-500);" id="userEmail">john@example.com</div>
+                            </div>
+                            <a href="#" class="dropdown-item" onclick="showProfile()">
+                                <i data-feather="user" width="16" height="16"></i> Profile
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="showSettings()">
+                                <i data-feather="settings" width="16" height="16"></i> Settings
+                            </a>
+                            <div style="border-top: 1px solid var(--gray-200);">
+                                <a href="#" class="dropdown-item text-red-600" onclick="handleLogout()">
+                                    <i data-feather="log-out" width="16" height="16"></i> Log Out
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Dashboard Section (Default View) -->
+        <section id="dashboard" class="section">
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('my-boxes')">My Boxes</div>
+                <div class="tab" onclick="showTab('schedule')">Schedule Pickup/Delivery</div>
+                <div class="tab" onclick="showTab('tracking')">Track Order</div>
+            </div>
+
+            <!-- My Boxes Tab -->
+            <div id="my-boxes" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">My Stored Items</h2>
+                        <button class="btn btn-primary" onclick="startNewStorage()">
+                            <i data-feather="plus"></i> Add New Box
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="box-list">
+                            <!-- Box 1 -->
+                            <div class="box-card" onclick="showBoxDetails('box1')">
+                                <div class="box-image">
+                                    <i data-feather="box" width="48" height="48"></i>
+                                    <span class="box-status status-stored">In Storage</span>
+                                </div>
+                                <div class="box-details">
+                                    <h3 class="box-title">Winter Clothes</h3>
+                                    <div class="box-meta">
+                                        <span class="box-meta-item">
+                                            <i data-feather="calendar" width="14" height="14"></i>
+                                            Stored: Mar 15
+                                        </span>
+                                        <span class="box-meta-item">
+                                            <i data-feather="tag" width="14" height="14"></i>
+                                            #BXY-7890
+                                        </span>
+                                    </div>
+                                    <div class="box-actions">
+                                        <button class="btn btn-outline btn-sm" onclick="scheduleDelivery('box1', event)">Request Delivery</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Box 2 -->
+                            <div class="box-card" onclick="showBoxDetails('box2')">
+                                <div class="box-image">
+                                    <i data-feather="box" width="48" height="48"></i>
+                                    <span class="box-status status-in-transit">In Transit</span>
+                                </div>
+                                <div class="box-details">
+                                    <h3 class="box-title">Books Collection</h3>
+                                    <div class="box-meta">
+                                        <span class="box-meta-item">
+                                            <i data-feather="calendar" width="14" height="14"></i>
+                                            Stored: Jun 5
+                                        </span>
+                                        <span class="box-meta-item">
+                                            <i data-feather="tag" width="14" height="14"></i>
+                                            #BXY-7891
+                                        </span>
+                                    </div>
+                                    <div class="box-actions">
+                                        <button class="btn btn-outline btn-sm" onclick="trackOrder('box2', event)">Track Order</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Box 3 -->
+                            <div class="box-card" onclick="showBoxDetails('box3')">
+                                <div class="box-image">
+                                    <i data-feather="box" width="48" height="48"></i>
+                                    <span class="box-status status-available">Ready for Pickup</span>
+                                </div>
+                                <div class="box-details">
+                                    <h3 class="box-title">Camping Gear</h3>
+                                    <div class="box-meta">
+                                        <span class="box-meta-item">
+                                            <i data-feather="calendar" width="14" height="14"></i>
+                                            Stored: Jun 20
+                                        </span>
+                                        <span class="box-meta-item">
+                                            <i data-feather="tag" width="14" height="14"></i>
+                                            #BXY-7892
+                                        </span>
+                                    </div>
+                                    <div class="box-actions">
+                                        <button class="btn btn-outline btn-sm" onclick="schedulePickup('box3', event)">Schedule Pickup</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Pickup/Delivery Tab -->
+            <div id="schedule" class="tab-content hidden">
+                <div class="handoff-flow">
+                    <div class="handoff-steps">
+                        <div class="step active" id="step1">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Select Service</div>
+                        </div>
+                        <div class="step" id="step2">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Choose Boxes</div>
+                        </div>
+                        <div class="step" id="step3">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Pick Time</div>
+                        </div>
+                        <div class="step" id="step4">
+                            <div class="step-number">4</div>
+                            <div class="step-label">Confirm</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Select Service -->
+                    <div id="service-selection">
+                        <h3>What would you like to do?</h3>
+                        <div class="schedule-option" onclick="selectService('pickup')">
+                            <input type="radio" name="service" id="pickup" class="schedule-radio">
+                            <div>
+                                <div class="schedule-time">Schedule Pickup</div>
+                                <div class="schedule-date">We'll pick up your items for storage</div>
+                            </div>
+                        </div>
+                        <div class="schedule-option" onclick="selectService('delivery')">
+                            <input type="radio" name="service" id="delivery" class="schedule-radio">
+                            <div>
+                                <div class="schedule-time">Schedule Delivery</div>
+                                <div class="schedule-date">We'll deliver your items back to you</div>
+                            </div>
+                        </div>
+                        <div class="form-actions" style="margin-top: 2rem;">
+                            <button class="btn btn-outline" onclick="cancelSchedule()">Cancel</button>
+                            <button class="btn btn-primary" onclick="nextStep(2)" disabled id="nextBtn">Next</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Choose Boxes (Hidden by default) -->
+                    <div id="box-selection" class="hidden">
+                        <h3>Select Boxes</h3>
+                        <div class="box-list">
+                            <!-- Box options will be populated by JavaScript -->
+                        </div>
+                        <div class="form-actions" style="margin-top: 2rem;">
+                            <button class="btn btn-outline" onclick="prevStep(2)">Back</button>
+                            <button class="btn btn-primary" onclick="nextStep(3)">Next</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Pick Time (Hidden by default) -->
+                    <div id="time-selection" class="hidden">
+                        <h3>Select Time Slot</h3>
+                        <div class="schedule-option" onclick="selectTimeSlot('morning')">
+                            <input type="radio" name="timeslot" id="morning" class="schedule-radio">
+                            <div>
+                                <div class="schedule-time">Morning (9 AM - 12 PM)</div>
+                                <div class="schedule-date">Available tomorrow</div>
+                            </div>
+                        </div>
+                        <div class="schedule-option" onclick="selectTimeSlot('afternoon')">
+                            <input type="radio" name="timeslot" id="afternoon" class="schedule-radio">
+                            <div>
+                                <div class="schedule-time">Afternoon (12 PM - 4 PM)</div>
+                                <div class="schedule-date">Available tomorrow</div>
+                            </div>
+                        </div>
+                        <div class="schedule-option" onclick="selectTimeSlot('evening')">
+                            <input type="radio" name="timeslot" id="evening" class="schedule-radio">
+                            <div>
+                                <div class="schedule-time">Evening (4 PM - 8 PM)</div>
+                                <div class="schedule-date">Available tomorrow</div>
+                            </div>
+                        </div>
+                        <div class="form-actions" style="margin-top: 2rem;">
+                            <button class="btn btn-outline" onclick="prevStep(3)">Back</button>
+                            <button class="btn btn-primary" onclick="nextStep(4)">Next</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Confirm (Hidden by default) -->
+                    <div id="confirmation" class="hidden">
+                        <h3>Confirm Your Request</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                                    <div>
+                                        <div class="text-sm text-gray-600">Service</div>
+                                        <div style="font-weight: 500;" id="confirm-service">Delivery</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-600">Date & Time</div>
+                                        <div style="font-weight: 500;" id="confirm-time">Tomorrow, 9 AM - 12 PM</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-600">Items</div>
+                                        <div style="font-weight: 500;" id="confirm-items">1 box</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-600">Address</div>
+                                        <div style="font-weight: 500;">123 Main St, Tel Aviv</div>
+                                    </div>
+                                </div>
+                                <div style="padding-top: 1rem; border-top: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="font-weight: 600;">Total:</div>
+                                    <div style="font-weight: 700; font-size: 1.25rem;">₪30.00</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions" style="margin-top: 2rem;">
+                            <button class="btn btn-outline" onclick="prevStep(4)">Back</button>
+                            <button class="btn btn-primary" onclick="confirmSchedule()">Confirm & Schedule</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tracking Tab -->
+            <div id="tracking" class="tab-content hidden">
+                <div class="tracking-card">
+                    <div class="tracking-header">
+                        <h3 class="tracking-title">Order #BXY-7891</h3>
+                        <span class="tracking-id">TRK-2023-7891</span>
+                    </div>
+                    
+                    <div class="tracking-status status-in-transit" style="display: inline-block; padding: 0.5rem 1rem; border-radius: 99px; margin-bottom: 1.5rem;">
+                        In Transit - Out for Delivery
+                    </div>
+                    
+                    <div class="tracking-timeline">
+                        <div class="timeline-item completed">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-time">Today, 10:30 AM</div>
+                                <div class="timeline-title">Out for Delivery</div>
+                                <div class="timeline-description">Your items are on the way to your location</div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item completed">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-time">Today, 8:15 AM</div>
+                                <div class="timeline-title">Dispatched from Warehouse</div>
+                                <div class="timeline-description">Your items have left our facility</div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item active">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-time">Yesterday, 4:30 PM</div>
+                                <div class="timeline-title">Delivery Scheduled</div>
+                                <div class="timeline-description">Your delivery is scheduled for tomorrow</div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-time">June 5, 2023</div>
+                                <div class="timeline-title">Items Received</div>
+                                <div class="timeline-description">Your items have been safely stored</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Delivery Details</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div>
+                                <div class="text-sm text-gray-600">Estimated Delivery</div>
+                                <div style="font-weight: 500;">Today, by 12:00 PM</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-600">Courier</div>
+                                <div style="font-weight: 500;">David Cohen</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-600">Contact</div>
+                                <div style="font-weight: 500;">054-1234567</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-600">Delivery Address</div>
+                                <div style="font-weight: 500;">123 Main St, Tel Aviv</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                            <button class="btn btn-primary" style="flex: 1;" onclick="contactCourier()">
+                                <i data-feather="phone" width="16" height="16"></i> Call Courier
+                            </button>
+                            <button class="btn btn-outline" style="flex: 1;" onclick="viewDeliveryNotes()">
+                                <i data-feather="file-text" width="16" height="16"></i> Delivery Notes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Box Details Section (Hidden by default) -->
+        <section id="box-details" class="section hidden">
+            <div class="card">
+                <div class="card-header">
+                    <button class="btn btn-outline btn-sm" onclick="backToDashboard()">
+                        <i data-feather="arrow-left"></i> Back to Dashboard
+                    </button>
+                    <h2 class="card-title">Box Details</h2>
+                </div>
+                <div class="card-body">
+                    <div id="box-details-content">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 400px; margin: 2rem auto; background: white; border-radius: 0.5rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
+            <div class="modal-header" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 1.25rem; font-weight: 600;">Welcome back</h3>
+                <button class="close" onclick="hideModal('loginModal')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-500);">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem;">
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label class="form-label" for="password">Password</label>
+                        <input type="password" id="password" class="form-control" required>
+                        <div style="text-align: right; margin-top: 0.5rem;">
+                            <a href="#" style="font-size: 0.875rem; color: var(--primary); text-decoration: none;">Forgot password?</a>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+                </form>
+                <div style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--gray-600);">
+                    Don't have an account? <a href="#" onclick="showSignup()" style="color: var(--primary); text-decoration: none; font-weight: 500;">Sign up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Section -->
+    <section id="profile" class="section hidden">
+        <div class="card">
+            <div class="card-header">
+                <button class="btn btn-outline btn-sm" onclick="showSection('dashboard')">
+                    <i data-feather="arrow-left"></i> Back to Dashboard
+                </button>
+                <h2 class="card-title">My Profile</h2>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;">
+                    <div style="position: relative;">
+                        <div style="width: 100px; height: 100px; border-radius: 50%; background: var(--gray-100); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: var(--primary); font-weight: 600;" id="profileAvatar">
+                            JD
+                        </div>
+                        <button class="btn btn-sm" style="position: absolute; bottom: 0; right: 0; background: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <i data-feather="camera" width="16" height="16"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <h3 id="profileName" style="font-size: 1.5rem; margin-bottom: 0.25rem;">John Doe</h3>
+                        <p style="color: var(--gray-600);">Member since June 2023</p>
+                    </div>
+                </div>
+                
+                <div style="max-width: 600px;">
+                    <h3 style="font-size: 1.125rem; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--gray-200);">Account Information</h3>
+                    
+                    <form id="profileForm">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label class="form-label" for="fullName">Full Name</label>
+                                <input type="text" id="fullName" class="form-control" value="John Doe">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="email">Email</label>
+                                <input type="email" id="email" class="form-control" value="john@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="phone">Phone</label>
+                                <input type="tel" id="phone" class="form-control" value="+1 (555) 123-4567">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="address">Address</label>
+                                <input type="text" id="address" class="form-control" value="123 Main St, Tel Aviv, Israel">
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                            <button type="button" class="btn btn-outline" onclick="showSection('dashboard')">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="/js/app.js"></script>
+    <script>
+        // Initialize Feather Icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            // Check if user is logged in (in a real app, this would check localStorage/session)
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            updateAuthUI(isLoggedIn);
+        });
+        
+        // Auth related functions
+        function showLogin() {
+            showModal('loginModal');
+        }
+        
+        function showSignup() {
+            alert('Sign up functionality would go here');
+        }
+        
+        function handleLogin(e) {
+            e.preventDefault();
+            // In a real app, you would validate credentials with your backend
+            localStorage.setItem('isLoggedIn', 'true');
+            updateAuthUI(true);
+            hideModal('loginModal');
+            showSection('dashboard');
+        }
+        
+        function handleLogout() {
+            localStorage.removeItem('isLoggedIn');
+            updateAuthUI(false);
+            showSection('dashboard');
+        }
+        
+        function updateAuthUI(isLoggedIn) {
+            const loginBtn = document.getElementById('loginBtn');
+            const userProfile = document.getElementById('userProfile');
+            
+            if (isLoggedIn) {
+                loginBtn.classList.add('hidden');
+                userProfile.classList.remove('hidden');
+            } else {
+                loginBtn.classList.remove('hidden');
+                userProfile.classList.add('hidden');
+            }
+        }
+        
+        function showProfile() {
+            showSection('profile');
+        }
+        
+        function showSettings() {
+            alert('Settings functionality would go here');
+        }
+        
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            dropdown.classList.toggle('hidden');
+        }
+        
+        function showModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+        
+        function hideModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+        
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show the selected section
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.remove('hidden');
+            }
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

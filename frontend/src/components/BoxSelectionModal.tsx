@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box } from '../types';
+import type { Box } from '../types/box';
 import { 
   FiX, 
   FiCheck, 

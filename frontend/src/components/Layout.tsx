@@ -1,66 +1,56 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { FiMoon, FiSun } from 'react-icons/fi';
+import { FiMoon, FiSun, FiArrowLeft } from 'react-icons/fi';
+import styles from '../styles/Layout.module.css';
 
 const Layout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
+  const isDashboard = location.pathname === '/dashboard';
+  const isHome = location.pathname === '/';
+  const showBackButton = !isDashboard && !isHome;
 
   return (
-    <div className="app-layout" style={{
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: '100vh',
-      backgroundColor: 'var(--bg-primary)',
-      color: 'var(--text-primary)'
-    }}>
-      <header style={{
-        padding: '1rem 2rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderBottom: '1px solid var(--border)',
-        backgroundColor: 'var(--surface-elevated)'
-      }}>
-        <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 600 }}>BoxY</h1>
+    <div className={styles.appLayout}>
+      <header className={styles.header}>
+        <div className={styles.headerLeft}>
+          {showBackButton && (
+            <Link 
+              to="/dashboard" 
+              className={styles.backButton}
+              aria-label="Back to Dashboard"
+            >
+              <FiArrowLeft className={styles.backIcon} />
+              <span>Dashboard</span>
+            </Link>
+          )}
+          <h1 className={styles.logo}>
+            {showBackButton ? (
+              <Link to="/dashboard" className={styles.logoLink}>
+                BoxY
+              </Link>
+            ) : (
+              <Link to="/" className={styles.logoLink}>
+                BoxY
+              </Link>
+            )}
+          </h1>
+        </div>
         <button
           onClick={toggleTheme}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-primary)',
-            cursor: 'pointer',
-            padding: '0.5rem',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background-color 0.2s ease',
-          }}
+          className={styles.themeToggle}
           aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
         >
           {theme === 'light' ? <FiMoon size={20} /> : <FiSun size={20} />}
         </button>
       </header>
       
-      <main style={{
-        flex: 1,
-        padding: '2rem',
-        maxWidth: '1200px',
-        width: '100%',
-        margin: '0 auto'
-      }}>
+      <main className={styles.main}>
         {children || <Outlet />}
       </main>
       
-      <footer style={{
-        padding: '1.5rem',
-        textAlign: 'center',
-        borderTop: '1px solid var(--border)',
-        backgroundColor: 'var(--surface-elevated)',
-        color: 'var(--text-secondary)',
-        fontSize: '0.875rem'
-      }}>
+      <footer className={styles.footer}>
         © {new Date().getFullYear()} BoxY - Seamless Storage Solutions
       </footer>
     </div>

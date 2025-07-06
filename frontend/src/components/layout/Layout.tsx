@@ -9,6 +9,7 @@ interface LayoutProps {
   children?: ReactNode;
   title?: string;
   showNav?: boolean;
+  hideBottomNav?: boolean;
   className?: string;
 }
 
@@ -16,6 +17,7 @@ const Layout: React.FC<LayoutProps> = ({
   children, 
   title = '',
   showNav = true,
+  hideBottomNav = false,
   className = ''
 }) => {
   const navigate = useNavigate();
@@ -34,8 +36,8 @@ const Layout: React.FC<LayoutProps> = ({
     window.location.href = '/login';
   };
   
-  // Show navigation only when authenticated and not loading
-  const showNavigation = showNav && isAuthenticated && !loading;
+  // Show navigation only when authenticated, not loading, and not explicitly hidden
+  const showNavigation = showNav && isAuthenticated && !loading && !hideBottomNav;
   
   console.log('Layout - navigation state:', {
     showNavigation,
